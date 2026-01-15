@@ -37,6 +37,7 @@ script = ExtResource("1_4w2it")
 [node name="JumpTrojectoryLine" type="Line2D" parent="."]
 
 [node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(3, 3)
 position_smoothing_enabled = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]

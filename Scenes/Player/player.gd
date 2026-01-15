@@ -145,6 +145,7 @@ func jump():
 		coyote_timer.stop()
 		velocity.y = jump_velocity
 		print("Player Jumped")
+		$"OSCClient - OUT".send_message("/player/jump", [1])
 	
 	if _get_gravity(velocity) == fall_gravity:
 		jump_buffer_timer.start()

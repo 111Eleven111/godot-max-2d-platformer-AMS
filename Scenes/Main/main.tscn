@@ -1,10 +1,12 @@
-[gd_scene load_steps=11 format=4 uid="uid://btki8atelihyl"]
+[gd_scene load_steps=13 format=4 uid="uid://btki8atelihyl"]
 
 [ext_resource type="Texture2D" uid="uid://baxt2l6h1o5f5" path="res://Assets/Tilemap/tiles.png" id="1_al8hm"]
 [ext_resource type="PackedScene" uid="uid://dqi7ekpwfx780" path="res://Scenes/Player/player.tscn" id="1_v8pw2"]
+[ext_resource type="Script" uid="uid://dprvbi4f1qvkd" path="res://Scenes/Main/main.gd" id="1_xlvfx"]
 [ext_resource type="Texture2D" uid="uid://c7wo8f50tow1f" path="res://Assets/Background/background_0009.png" id="2_3klix"]
 [ext_resource type="Texture2D" uid="uid://dojd10pc66mco" path="res://Assets/Background/background_0010.png" id="3_yl34v"]
 [ext_resource type="Texture2D" uid="uid://mfrp1yshlr0j" path="res://Assets/Background/background_0011.png" id="4_powjl"]
+[ext_resource type="Script" uid="uid://xi7uy8bnjk3a" path="res://addons/godOSC/scripts/OSCClient.gd" id="7_y3v7k"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ise3m"]
 texture = ExtResource("1_al8hm")
@@ -356,6 +358,7 @@ sources/5 = SubResource("TileSetAtlasSource_r4flb")
 sources/6 = SubResource("TileSetAtlasSource_wb4mc")
 
 [node name="Main" type="Node2D"]
+script = ExtResource("1_xlvfx")
 
 [node name="Backgorund" type="TileMapLayer" parent="."]
 use_parent_material = true
@@ -371,3 +374,7 @@ rendering_quadrant_size = 18
 
 [node name="Player" parent="." instance=ExtResource("1_v8pw2")]
 position = Vector2(396, 612)
+
+[node name="OSCClient - OUT" type="Node" parent="Player"]
+script = ExtResource("7_y3v7k")
+port = 4848
