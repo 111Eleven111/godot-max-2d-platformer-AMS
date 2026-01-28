@@ -9,32 +9,101 @@
             "modernui": 1
         },
         "classnamespace": "box",
-        "rect": [ 1059.0, 100.0, 635.0, 983.0 ],
+        "rect": [ 34.0, 100.0, 1660.0, 983.0 ],
         "boxes": [
             {
                 "box": {
-                    "fontname": "Arial",
-                    "fontsize": 12.0,
-                    "id": "obj-27",
-                    "linecount": 2,
-                    "maxclass": "comment",
+                    "id": "obj-43",
+                    "maxclass": "newobj",
                     "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 455.0, 639.0, 204.0, 33.0 ],
-                    "presentation_linecount": 2,
-                    "text": "-Note: mp3s and Itunes files cant be loaded...could be your problem"
+                    "numoutlets": 1,
+                    "outlettype": [ "bang" ],
+                    "patching_rect": [ 40.5, 508.0, 58.0, 22.0 ],
+                    "text": "loadbang"
                 }
             },
             {
                 "box": {
-                    "fontname": "Arial",
-                    "fontsize": 12.0,
-                    "id": "obj-28",
-                    "maxclass": "comment",
+                    "id": "obj-42",
+                    "maxclass": "message",
+                    "numinlets": 2,
+                    "numoutlets": 1,
+                    "outlettype": [ "" ],
+                    "patching_rect": [ 69.0, 559.5, 29.5, 22.0 ],
+                    "text": "0"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-36",
+                    "maxclass": "message",
+                    "numinlets": 2,
+                    "numoutlets": 1,
+                    "outlettype": [ "" ],
+                    "patching_rect": [ 167.0, 559.5, 29.5, 22.0 ],
+                    "text": "1"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-30",
+                    "maxclass": "newobj",
                     "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 208.0, 966.0, 150.0, 20.0 ],
-                    "text": "Work from the bottom up"
+                    "numoutlets": 1,
+                    "outlettype": [ "signal" ],
+                    "patching_rect": [ 167.0, 601.5, 31.0, 22.0 ],
+                    "text": "sig~"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-29",
+                    "maxclass": "message",
+                    "numinlets": 2,
+                    "numoutlets": 1,
+                    "outlettype": [ "" ],
+                    "patching_rect": [ 131.0, 559.5, 29.5, 22.0 ],
+                    "text": "0"
+                }
+            },
+            {
+                "box": {
+                    "channels": 1,
+                    "id": "obj-21",
+                    "lastchannelcount": 0,
+                    "maxclass": "live.gain~",
+                    "numinlets": 1,
+                    "numoutlets": 4,
+                    "orientation": 1,
+                    "outlettype": [ "signal", "", "float", "list" ],
+                    "parameter_enable": 1,
+                    "patching_rect": [ 69.0, 676.0, 136.0, 30.0 ],
+                    "saved_attribute_attributes": {
+                        "valueof": {
+                            "parameter_initial": [ -40 ],
+                            "parameter_initial_enable": 1,
+                            "parameter_longname": "live.gain~",
+                            "parameter_mmax": 6.0,
+                            "parameter_mmin": -70.0,
+                            "parameter_modmode": 0,
+                            "parameter_shortname": "live.gain~",
+                            "parameter_type": 0,
+                            "parameter_unitstyle": 4
+                        }
+                    },
+                    "showname": 0,
+                    "varname": "live.gain~"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-16",
+                    "maxclass": "newobj",
+                    "numinlets": 3,
+                    "numoutlets": 2,
+                    "outlettype": [ "signal", "signal" ],
+                    "patching_rect": [ 131.0, 642.5, 81.0, 22.0 ],
+                    "text": "groove~ bass"
                 }
             },
             {
@@ -44,8 +113,8 @@
                     "numinlets": 1,
                     "numoutlets": 2,
                     "outlettype": [ "float", "bang" ],
-                    "patching_rect": [ 155.48, 471.48, 119.0, 22.0 ],
-                    "text": "buffer~ bass bass.aif"
+                    "patching_rect": [ 131.0, 508.0, 122.0, 22.0 ],
+                    "text": "buffer~ bass bass.aiff"
                 }
             },
             {
@@ -54,7 +123,7 @@
                     "maxclass": "ezdac~",
                     "numinlets": 2,
                     "numoutlets": 0,
-                    "patching_rect": [ 112.32, 530.77, 45.0, 45.0 ]
+                    "patching_rect": [ 69.0, 742.0, 45.0, 45.0 ]
                 }
             },
             {
@@ -104,6 +173,31 @@
             },
             {
                 "box": {
+                    "fontname": "Arial",
+                    "fontsize": 12.0,
+                    "id": "obj-27",
+                    "linecount": 2,
+                    "maxclass": "comment",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 455.0, 639.0, 204.0, 33.0 ],
+                    "text": "-Note: mp3s and Itunes files cant be loaded...could be your problem"
+                }
+            },
+            {
+                "box": {
+                    "fontname": "Arial",
+                    "fontsize": 12.0,
+                    "id": "obj-28",
+                    "maxclass": "comment",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 208.0, 966.0, 150.0, 20.0 ],
+                    "text": "Work from the bottom up"
+                }
+            },
+            {
+                "box": {
                     "id": "obj-41",
                     "linecount": 3,
                     "maxclass": "comment",
@@ -123,10 +217,10 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 31.0, 229.0, 153.0, 33.0 ],
+                    "patching_rect": [ 31.0, 229.0, 154.0, 33.0 ],
                     "presentation": 1,
                     "presentation_linecount": 2,
-                    "presentation_rect": [ 31.0, 229.0, 153.0, 33.0 ],
+                    "presentation_rect": [ 31.0, 229.0, 154.0, 33.0 ],
                     "text": "Sends to the port specified on OSCServer in Godot"
                 }
             },
@@ -494,6 +588,13 @@
         "lines": [
             {
                 "patchline": {
+                    "destination": [ "obj-29", 0 ],
+                    "midpoints": [ 114.86, 537.1988422572613, 140.5, 537.1988422572613 ],
+                    "source": [ "obj-1", 0 ]
+                }
+            },
+            {
+                "patchline": {
                     "destination": [ "obj-1", 0 ],
                     "source": [ "obj-10", 0 ]
                 }
@@ -508,6 +609,12 @@
                 "patchline": {
                     "destination": [ "obj-33", 1 ],
                     "source": [ "obj-12", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-21", 0 ],
+                    "source": [ "obj-16", 0 ]
                 }
             },
             {
@@ -553,6 +660,20 @@
             },
             {
                 "patchline": {
+                    "destination": [ "obj-18", 1 ],
+                    "order": 0,
+                    "source": [ "obj-21", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-18", 0 ],
+                    "order": 1,
+                    "source": [ "obj-21", 0 ]
+                }
+            },
+            {
+                "patchline": {
                     "destination": [ "obj-17", 1 ],
                     "source": [ "obj-24", 0 ]
                 }
@@ -561,6 +682,18 @@
                 "patchline": {
                     "destination": [ "obj-24", 0 ],
                     "source": [ "obj-26", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-16", 0 ],
+                    "source": [ "obj-29", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-16", 0 ],
+                    "source": [ "obj-30", 0 ]
                 }
             },
             {
@@ -583,6 +716,12 @@
             },
             {
                 "patchline": {
+                    "destination": [ "obj-30", 0 ],
+                    "source": [ "obj-36", 0 ]
+                }
+            },
+            {
+                "patchline": {
                     "destination": [ "obj-10", 0 ],
                     "order": 0,
                     "source": [ "obj-4", 0 ]
@@ -593,6 +732,33 @@
                     "destination": [ "obj-6", 1 ],
                     "order": 1,
                     "source": [ "obj-4", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-21", 0 ],
+                    "source": [ "obj-42", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-29", 0 ],
+                    "order": 1,
+                    "source": [ "obj-43", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-36", 0 ],
+                    "order": 0,
+                    "source": [ "obj-43", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-42", 0 ],
+                    "order": 2,
+                    "source": [ "obj-43", 0 ]
                 }
             },
             {
@@ -621,14 +787,7 @@
             }
         ],
         "parameters": {
-            "parameterbanks": {
-                "0": {
-                    "index": 0,
-                    "name": "",
-                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
-                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
-                }
-            },
+            "obj-21": [ "live.gain~", "live.gain~", 0 ],
             "inherited_shortname": 1
         },
         "autosave": 0
