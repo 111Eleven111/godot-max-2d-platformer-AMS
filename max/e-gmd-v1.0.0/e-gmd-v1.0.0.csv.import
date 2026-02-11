@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://636p2rofebwn"
+
+[deps]
+
+files=["res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.session.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.id.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.style.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.bpm.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.beat.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.time.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.duration.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.split.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.midi.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.audio.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.kit.translation"]
+
+source_file="res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.csv"
+dest_files=["res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.session.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.id.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.style.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.bpm.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.beat.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.time.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.duration.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.split.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.midi.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.audio.translation", "res://max/e-gmd-v1.0.0/e-gmd-v1.0.0.kit.translation"]
+
+[params]
+
+compress=true
+delimiter=0
