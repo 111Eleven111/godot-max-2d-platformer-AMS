@@ -5,6 +5,8 @@ extends CharacterBody2D
 @onready var jump_buffer_timer = $JumpBufferTimer
 @onready var jump_trojectory_line = $JumpTrojectoryLine
 
+var was_on_floor := false
+
 
 @export_group("Movement")
 ## Maximum speed reachable by player
@@ -47,10 +49,26 @@ extends CharacterBody2D
 ## Maximum amount of points used to visualize player's jump trojectory (WiP)
 @export var max_trojectory_ponints := 100
 
+@export_group("Audio - Folio (SDT)")
+## Maximum fall speed for impact energy calculation
+@export_range(100, 1000) var max_fall_speed := 500.0
+## Current surface type for folio synthesis (wood, stone, metal, etc.)
+@export var current_surface_tag := "wood"
+
 
 @onready var jump_velocity : float = (2.0 * jump_height) / jump_time_to_peak * -1
 @onready var jump_gravity : float = (-2.0 * jump_height) / (jump_time_to_peak * jump_time_to_peak) * -1
 @onready var fall_gravity : float = (-2.0 * jump_height) / (jump_time_to_descent * jump_time_to_descent) * -1
+
+
+@export_group("Scene Rules")
+@export var jump_enabled_scenes: PackedStringArray = PackedStringArray([
+	"res://Scenes/Main/main.tscn"
+])
+@export var scene_shortcuts: PackedStringArray = PackedStringArray([
+	"res://Scenes/Main/main.tscn",
+	"res://Scenes/Main/low-accel-SDT-s1.tscn"
+])
 
 
 func _ready():
@@ -80,7 +98,6 @@ func _get_movement(fric: float, accel: float, delta: float):
 	
 	if is_variable_min_speed and min_speed > 0:
 			velocity.x = maxf(abs(velocity.x), abs(min_speed * sign(direction))) * sign(direction)
-
 
 # A way to visialize the players jump trojectory in real time (WiP)
 func _projected_jump_trojectory(_delta, direction):
@@ -126,21 +143,75 @@ func _physics_process(delta):
 	
 	if velocity != Vector2.ZERO:
 		$AnimatedSprite2D.play("walk")
+		$"OSCClient - OUT".send_message("/player/velocity", [velocity.x])
 	else:
 		$AnimatedSprite2D.play("idle")
+		$"OSCClient - OUT".send_message("/player/velocity", [0])
 		
 #	if Input.is_action_just_pressed("Preview_Jump"):
 #		_projected_jump_trojectory(delta, sign(velocity.x))
 	
+	# Capture velocity before move_and_slide() resets it
+	var pre_landing_velocity = velocity
+	
 	move_and_slide()
 	
-	if Engine.get_process_frames() % 30 == 0:
-		# Run expensive logic only once every 60 process (render) frames here.
-		print(global_position)
+	# Check if player just landed (velocity.y is now 0 after move_and_slide)
+	if not was_on_floor and is_on_floor():
+		_on_landed(pre_landing_velocity, current_surface_tag)
+	
+	was_on_floor = is_on_floor()
+
+
+func _unhandled_input(event):
+	if event is InputEventKey and event.pressed and not event.echo:
+		var scene_index := _get_scene_shortcut_index(event.keycode)
+		if scene_index != -1:
+			_switch_to_scene(scene_index)
+
+
+func _get_scene_shortcut_index(keycode: Key) -> int:
+	if keycode >= KEY_1 and keycode <= KEY_9:
+		return int(keycode - KEY_1)
+
+	if keycode == KEY_0:
+		return 9
+
+	return -1
+
+
+func _switch_to_scene(scene_index: int) -> void:
+	if scene_index < 0 or scene_index >= scene_shortcuts.size():
+		return
+
+	var scene_path := scene_shortcuts[scene_index]
+	if scene_path.is_empty():
+		return
+
+	if get_tree().current_scene and get_tree().current_scene.scene_file_path == scene_path:
+		return
+
+	get_tree().change_scene_to_file(scene_path)
+
+	print("Switched to scene!")
+
+
+func _is_jump_enabled_in_current_scene() -> bool:
+	if jump_enabled_scenes.is_empty():
+		return true
+
+	var current_scene := get_tree().current_scene
+	if not current_scene:
+		return false
+
+	return current_scene.scene_file_path in jump_enabled_scenes
 
 
 # Adds the player's jump velocity if able
 func jump():
+	if not _is_jump_enabled_in_current_scene():
+		return
+	
 	if coyote_timer.time_left > 0.0:
 		coyote_timer.stop()
 		velocity.y = jump_velocity
@@ -158,3 +229,24 @@ func jump_cut():
 	
 	if velocity.y < minimum_jump_height * up_direction.y:
 		velocity.y = minimum_jump_height * up_direction.y
+
+# function that runs when player lands
+# Sends velocity and surface data to MAX for folio synthesis using SDT (Sound Design Toolkit)
+func _on_landed(landing_velocity: Vector2, surface_tag: String):
+	# Calculate impact energy from vertical velocity (0.0 to 1.0)
+	var impact_energy = clamp(abs(landing_velocity.y) / max_fall_speed, 0.0, 1.0)
+	
+	# Send to MAX/SDT:
+	# - Strike velocity: use negative vertical velocity for impact intensity
+	$"OSCClient - OUT".send_message("/sdt/strike", [-landing_velocity.y, impact_energy])
+	
+	# - Surface type affects modal frequencies and decay times
+	$"OSCClient - OUT".send_message("/sdt/surface", [surface_tag])
+	
+	# - Horizontal velocity for directional folio cues
+	$"OSCClient - OUT".send_message("/sdt/direction", [sign(landing_velocity.x)])
+	
+	print("Player Landed - Impact Energy: %.2f" % impact_energy)
+	$"OSCClient - OUT".send_message("/player/landed", [1])
+	
+	

@@ -1,5 +1,5 @@
 ea4bc82a6ad023ab7ee23ee620429895
-::res://::1772628575
+::res://::1776682743
 icon.svg::CompressedTexture2D/CompressedTexture2D::872652202297296313::1705191000::1767885494::1::::<><><>0<>0<>01c61440756e499b461f2212501e7265<>res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex::
 README copy.md::TextFile/TextFile::-1::1705191000::0::1::::<><><>0<>0<><>::
 README.md::TextFile/TextFile::-1::1767718414::0::1::::<><><>0<>0<><>::
@@ -8,9 +8,9 @@ README.md::TextFile/TextFile::-1::1767718414::0::1::::<><><>0<>0<><>::
 plugin.cfg::TextFile/TextFile::-1::1750098073::0::1::::<><><>0<>0<><>::
 plugin.gd::GDScript/GDScript::702938965960062056::1750098073::0::1::::<>EditorPlugin<><>0<>1<><>::
 README.md::TextFile/TextFile::-1::1750098073::0::1::::<><><>0<>0<><>::
-::res://addons/godOSC/demo/::1769712471
+::res://addons/godOSC/demo/::1773404754
 demo.gd::GDScript/GDScript::974138740369500768::1750098073::0::1::::<>Node2D<><>0<>0<><>::
-demo.tscn::PackedScene/PackedScene::946727408817290586::1769712471::0::1::::<><><>0<>0<><>::uid://xi7uy8bnjk3a::::res://addons/godOSC/scripts/OSCClient.gd<>uid://n446mw85sbns::::res://addons/godOSC/demo/demo.gd<>uid://w8v0v76wc4r2::::res://addons/godOSC/scripts/OSCServer.gd<>uid://bo023cplul547::::res://addons/godOSC/demo/demo_receiver_cube1.gd<>uid://tdoy6n5ivl2p::::res://addons/godOSC/scripts/OSCReceiver.gd<>uid://dxq8lko4ilo38::::res://addons/godOSC/demo/onoff.gd<>uid://njq2yjcx4gqt::::res://addons/godOSC/demo/MessageContainer.gd<>uid://b0pkndrhr65ph::::res://addons/godOSC/scripts/OSCMessage.gd
+demo.tscn::PackedScene/PackedScene::946727408817290586::1773404754::0::1::::<><><>0<>0<><>::uid://xi7uy8bnjk3a::::res://addons/godOSC/scripts/OSCClient.gd<>uid://n446mw85sbns::::res://addons/godOSC/demo/demo.gd<>uid://w8v0v76wc4r2::::res://addons/godOSC/scripts/OSCServer.gd<>uid://bo023cplul547::::res://addons/godOSC/demo/demo_receiver_cube1.gd<>uid://tdoy6n5ivl2p::::res://addons/godOSC/scripts/OSCReceiver.gd<>uid://dxq8lko4ilo38::::res://addons/godOSC/demo/onoff.gd<>uid://njq2yjcx4gqt::::res://addons/godOSC/demo/MessageContainer.gd<>uid://b0pkndrhr65ph::::res://addons/godOSC/scripts/OSCMessage.gd
 demo_message_cube1.gd::GDScript/GDScript::5547205669970616270::1750098073::0::1::::<>OSCMessage<><>0<>0<><>::
 demo_message_cube2.gd::GDScript/GDScript::7946129077303098639::1750098073::0::1::::<>OSCMessage<><>0<>0<><>::
 demo_receiver_cube1.gd::GDScript/GDScript::3422363428256831402::1750098073::0::1::::<>OSCReceiver<><>0<>0<><>::
@@ -266,7 +266,9 @@ tile_0176.png::CompressedTexture2D/CompressedTexture2D::4465487723146125066::170
 tile_0177.png::CompressedTexture2D/CompressedTexture2D::438891476695650333::1705191000::1767885494::1::::<><><>0<>0<>5008742b077fa43a931c80aaefa14709<>res://.godot/imported/tile_0177.png-519f7011a508b4fbdc45fa9dbaee1144.ctex::
 tile_0178.png::CompressedTexture2D/CompressedTexture2D::8194086560401359793::1705191000::1767885494::1::::<><><>0<>0<>bf5787bac6ca61a867d0cc76b48014cf<>res://.godot/imported/tile_0178.png-0df2231d115724361113275753066b94.ctex::
 tile_0179.png::CompressedTexture2D/CompressedTexture2D::8468446835602281845::1705191000::1767885494::1::::<><><>0<>0<>b8d795f42b337846a3c341df453525da<>res://.godot/imported/tile_0179.png-fd3ff9f95882021065f1c20451b8b8a9.ctex::
-::res://max/::1772624548
+::res://max/::1773831401
+Scarlet-Forest.mp3::AudioStreamMP3/AudioStreamMP3::4038229727782447915::1773829004::1773831401::1::::<><><>0<>0<>31d6646a63278b04ae4c0334660083de<>res://.godot/imported/Scarlet-Forest.mp3-c30109352be7e1463b33c3d9818dfdf8.mp3str::
+storage.json::JSON/JSON::-1::1773357708::0::1::::<><><>0<>0<><>::
 ::res://max/backup-max-patches/::1772624548
 ::res://max/e-gmd-v1.0.0/::1769712902
 e-gmd-v1.0.0.audio.translation::OptimizedTranslation/OptimizedTranslation::6885771882728511296::1769712467::0::1::::<><><>0<>0<><>::
@@ -286,7 +288,7 @@ e-gmd-v1.0.0.time.translation::OptimizedTranslation/OptimizedTranslation::318516
 ::res://max/e-gmd-v1.0.0/drummer1/session1/::1580852481
 ::res://max/e-gmd-v1.0.0/drummer1/session2/::1580852523
 ::res://max/e-gmd-v1.0.0/drummer1/session3/::1580852573
-::res://max/e-gmd-v1.0.0/drummer3/::1580849861
+::res://max/e-gmd-v1.0.0/drummer3/::1774177703
 ::res://max/e-gmd-v1.0.0/drummer3/session1/::1580852579
 ::res://max/e-gmd-v1.0.0/drummer3/session2/::1580852584
 ::res://max/e-gmd-v1.0.0/drummer4/::1580851080
@@ -299,7 +301,7 @@ e-gmd-v1.0.0.time.translation::OptimizedTranslation/OptimizedTranslation::318516
 ::res://max/e-gmd-v1.0.0/drummer6/session1/::1580852660
 ::res://max/e-gmd-v1.0.0/drummer6/session2/::1580851715
 ::res://max/e-gmd-v1.0.0/drummer6/session3/::1580852685
-::res://max/e-gmd-v1.0.0/drummer7/::1580849989
+::res://max/e-gmd-v1.0.0/drummer7/::1773235285
 ::res://max/e-gmd-v1.0.0/drummer7/eval_session/::1580849973
 ::res://max/e-gmd-v1.0.0/drummer7/session1/::1580852698
 ::res://max/e-gmd-v1.0.0/drummer7/session2/::1580852743
@@ -313,12 +315,13 @@ e-gmd-v1.0.0.time.translation::OptimizedTranslation/OptimizedTranslation::318516
 ::res://max/e-gmd-v1.0.0/drummer10/session1/::1580850979
 ::res://python-scripts/::1772624548
 ::res://Scenes/::1768487420
-::res://Scenes/Main/::1769712471
+::res://Scenes/Main/::1776425837
+low-accel-SDT-s1.tscn::PackedScene/PackedScene::8447864740179947407::1776425282::0::1::::<><><>0<>0<><>::uid://dprvbi4f1qvkd::::res://Scenes/Main/main.gd<>uid://baxt2l6h1o5f5::::res://Assets/Tilemap/tiles.png<>uid://c7wo8f50tow1f::::res://Assets/Background/background_0009.png<>uid://dojd10pc66mco::::res://Assets/Background/background_0010.png<>uid://mfrp1yshlr0j::::res://Assets/Background/background_0011.png<>uid://dqi7ekpwfx780::::res://Scenes/Player/player.tscn<>uid://xi7uy8bnjk3a::::res://addons/godOSC/scripts/OSCClient.gd
 main.gd::GDScript/GDScript::8248466435359510315::1768491316::0::1::::<>Node2D<><>0<>0<><>::
-main.tscn::PackedScene/PackedScene::3741197187045356039::1769712471::0::1::::<><><>0<>0<><>::uid://baxt2l6h1o5f5::::res://Assets/Tilemap/tiles.png<>uid://dqi7ekpwfx780::::res://Scenes/Player/player.tscn<>uid://dprvbi4f1qvkd::::res://Scenes/Main/main.gd<>uid://c7wo8f50tow1f::::res://Assets/Background/background_0009.png<>uid://dojd10pc66mco::::res://Assets/Background/background_0010.png<>uid://mfrp1yshlr0j::::res://Assets/Background/background_0011.png<>uid://xi7uy8bnjk3a::::res://addons/godOSC/scripts/OSCClient.gd
+main.tscn::PackedScene/PackedScene::3741197187045356039::1776425837::0::1::::<><><>0<>0<><>::uid://baxt2l6h1o5f5::::res://Assets/Tilemap/tiles.png<>uid://dqi7ekpwfx780::::res://Scenes/Player/player.tscn<>uid://dprvbi4f1qvkd::::res://Scenes/Main/main.gd<>uid://c7wo8f50tow1f::::res://Assets/Background/background_0009.png<>uid://dojd10pc66mco::::res://Assets/Background/background_0010.png<>uid://mfrp1yshlr0j::::res://Assets/Background/background_0011.png<>uid://xi7uy8bnjk3a::::res://addons/godOSC/scripts/OSCClient.gd
 ::res://Scenes/Objects/::1764007446
 moving_platform.gd::GDScript/GDScript::1319373420096673170::1705191000::0::1::::<>PathFollow2D<><>0<>0<><>::
 moving_platform.tscn::PackedScene/PackedScene::6919139906422651956::1764007446::0::1::::<><><>0<>0<><>::uid://coedxcct0r74f::::res://Assets/Tiles/tile_0003.png<>uid://s2d5f576uaww::::res://Scenes/Objects/moving_platform.gd<>uid://bovvlujqfsjkv::::res://Assets/Tiles/tile_0002.png<>uid://v3pmeaqo5v3::::res://Assets/Tiles/tile_0001.png
-::res://Scenes/Player/::1769712471
-player.gd::GDScript/GDScript::6660416562043730006::1768491402::0::1::::Player<>CharacterBody2D<><>0<>0<><>::
-player.tscn::PackedScene/PackedScene::8300749207677216771::1769712471::0::1::::<><><>0<>0<><>::uid://c15mc8mdba5ha::::res://Scenes/Player/player.gd<>uid://vympwop2vhxc::::res://Assets/Characters/character_0000.png<>uid://bryvnrjngs5y5::::res://Assets/Characters/character_0001.png
+::res://Scenes/Player/::1776425822
+player.gd::GDScript/GDScript::6660416562043730006::1776425822::0::1::::Player<>CharacterBody2D<><>0<>0<><>::
+player.tscn::PackedScene/PackedScene::8300749207677216771::1773404754::0::1::::<><><>0<>0<><>::uid://c15mc8mdba5ha::::res://Scenes/Player/player.gd<>uid://vympwop2vhxc::::res://Assets/Characters/character_0000.png<>uid://bryvnrjngs5y5::::res://Assets/Characters/character_0001.png
