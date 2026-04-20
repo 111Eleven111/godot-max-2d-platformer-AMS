@@ -63,11 +63,15 @@ var was_on_floor := false
 
 @export_group("Scene Rules")
 @export var jump_enabled_scenes: PackedStringArray = PackedStringArray([
-	"res://Scenes/Main/main.tscn"
+	"res://Scenes/Main/main.tscn",
+	"res://Scenes/Main/static-sample-jump.tscn",
+	"res://Scenes/Main/static-sample-variations-jump.tscn"
 ])
 @export var scene_shortcuts: PackedStringArray = PackedStringArray([
 	"res://Scenes/Main/main.tscn",
-	"res://Scenes/Main/low-accel-SDT-s1.tscn"
+	"res://Scenes/Main/low-accel-SDT-s1.tscn",
+	"res://Scenes/Main/static-sample-jump.tscn",
+	"res://Scenes/Main/static-sample-variations-jump.tscn"
 ])
 
 
@@ -193,7 +197,7 @@ func _switch_to_scene(scene_index: int) -> void:
 
 	get_tree().change_scene_to_file(scene_path)
 
-	print("Switched to scene!")
+	print("Switched to scene: ", scene_index + 1, " - ", scene_shortcuts[scene_index])
 
 
 func _is_jump_enabled_in_current_scene() -> bool:
