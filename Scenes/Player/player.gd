@@ -4,6 +4,11 @@ extends CharacterBody2D
 @onready var coyote_timer = $CoyoteTimer
 @onready var jump_buffer_timer = $JumpBufferTimer
 @onready var jump_trojectory_line = $JumpTrojectoryLine
+@onready var jump_sfx_1 = $jump_sfx_1
+@onready var land_sfx_1: AudioStreamPlayer = $land_sfx_1
+@onready var jump_sfx_1_vari: AudioStreamPlayer = $jump_sfx_1_vari
+@onready var land_sfx_1_vari: AudioStreamPlayer = $land_sfx_1_vari
+
 
 var was_on_floor := false
 
@@ -73,7 +78,6 @@ var was_on_floor := false
 	"res://Scenes/Main/static-sample-jump.tscn",
 	"res://Scenes/Main/static-sample-variations-jump.tscn"
 ])
-
 
 func _ready():
 	coyote_timer.wait_time = coyote_timer_value
@@ -221,6 +225,16 @@ func jump():
 		velocity.y = jump_velocity
 		print("Player Jumped")
 		$"OSCClient - OUT".send_message("/player/jump", [1])
+		
+		# play jump sfx static sample
+		if jump_sfx_1:
+			jump_sfx_1.play()
+			
+		if jump_sfx_1_vari:
+			# randomize the pitch scale
+			jump_sfx_1_vari.pitch_scale = randf_range(0.8, 1.2)
+			jump_sfx_1_vari.play()
+		
 	
 	if _get_gravity(velocity) == fall_gravity:
 		jump_buffer_timer.start()
@@ -253,4 +267,10 @@ func _on_landed(landing_velocity: Vector2, surface_tag: String):
 	print("Player Landed - Impact Energy: %.2f" % impact_energy)
 	$"OSCClient - OUT".send_message("/player/landed", [1])
 	
-	
+	# play landing sfx static sample
+	if land_sfx_1:
+		land_sfx_1.play()
+		
+	if land_sfx_1_vari:
+		land_sfx_1_vari.pitch_scale = randf_range(0.8, 1.2)
+		land_sfx_1_vari.play()
