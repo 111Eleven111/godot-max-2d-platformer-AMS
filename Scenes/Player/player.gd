@@ -14,12 +14,14 @@ var land_sfx_1_vari: AudioStreamPlayer
 
 
 var was_on_floor := false
+var reset := false
 
 # Timer tracking
 var elapsed_time := 0.0
 var is_timer_running := false
 var start_position := Vector2.ZERO
-var victory_height := -10000.0  # 10 000 pixels above starting position
+var victory_height := 10000
+var victory_reached := false
 
 # Jump tracking for variable jump height
 var is_jump_held := false
@@ -97,8 +99,9 @@ func _ready():
 	coyote_timer.wait_time = coyote_timer_value
 	jump_buffer_timer.wait_time = jump_buffer_timer_value
 	start_position = global_position
-	victory_height = start_position.y - 10000.0  # 10 000 pixels above starting position
+	victory_height = -2510
 	_update_timer_display()
+	reset = true
 	
 	# Try to load audio nodes if they exist
 	if has_node("jump_sfx_1"):
@@ -188,8 +191,9 @@ func _physics_process(delta):
 			velocity.y -= jump_hold_boost * delta
 	
 	# Start timer on first keyboard input (movement or jump)
-	if not is_timer_running and (Input.is_action_pressed("Move_Left") or Input.is_action_pressed("Move_Right") or Input.is_action_pressed("Jump")):
+	if not is_timer_running and (Input.is_action_pressed("Move_Left") or Input.is_action_pressed("Move_Right") or Input.is_action_pressed("Jump")) and reset:
 		is_timer_running = true
+		reset = false
 		print("Timer started on input!")
 	
 	# Update timer if running
@@ -198,7 +202,7 @@ func _physics_process(delta):
 		_update_timer_display()
 		
 		# Check if player reached victory height
-		if global_position.y <= victory_height:
+		if position.y <= victory_height:
 			_on_victory()
 	
 	if velocity != Vector2.ZERO:
@@ -283,6 +287,8 @@ func _reset_player() -> void:
 	is_jump_held = false
 	jump_hold_boost = 0.0
 	_update_timer_display()
+	reset = true
+	victory_reached = false
 	print("Player and timer reset!")
 
 
@@ -299,6 +305,7 @@ func _is_jump_enabled_in_current_scene() -> bool:
 
 # Adds the player's jump velocity if able
 func jump():
+	
 	if not _is_jump_enabled_in_current_scene():
 		return
 	
@@ -313,7 +320,7 @@ func jump():
 		else:
 			velocity.y = jump_velocity
 		
-		print("Player Jumped")
+		print("Player Jumped at position: ", position)
 		$"OSCClient - OUT".send_message("/player/jump", [1])
 		
 		# play jump sfx static sample
