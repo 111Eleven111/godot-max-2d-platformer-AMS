@@ -4,13 +4,27 @@ extends CharacterBody2D
 @onready var coyote_timer = $CoyoteTimer
 @onready var jump_buffer_timer = $JumpBufferTimer
 @onready var jump_trojectory_line = $JumpTrojectoryLine
-@onready var jump_sfx_1 = $jump_sfx_1
-@onready var land_sfx_1: AudioStreamPlayer = $land_sfx_1
-@onready var jump_sfx_1_vari: AudioStreamPlayer = $jump_sfx_1_vari
-@onready var land_sfx_1_vari: AudioStreamPlayer = $land_sfx_1_vari
+@onready var timer_label = $UILayer/TimerLabel
+
+# Audio nodes are optional - may not exist in all scenes
+var jump_sfx_1: AudioStreamPlayer
+var land_sfx_1: AudioStreamPlayer
+var jump_sfx_1_vari: AudioStreamPlayer
+var land_sfx_1_vari: AudioStreamPlayer
 
 
 var was_on_floor := false
+
+# Timer tracking
+var elapsed_time := 0.0
+var is_timer_running := false
+var start_position := Vector2.ZERO
+var victory_height := -10000.0  # 10 000 pixels above starting position
+
+# Jump tracking for variable jump height
+var is_jump_held := false
+var jump_hold_boost := 0.0
+var max_jump_hold_boost := 200.0  # Additional velocity boost from holding
 
 
 @export_group("Movement")
@@ -46,9 +60,9 @@ var was_on_floor := false
 ## Amount of time it takes the player to fall from the peak of their jump to the ground
 @export var jump_time_to_descent := 0.3
 ## Determains if a player jump highet changes depending on how long they held it in
-@export var variable_jump_height := false
+@export var variable_jump_height := true
 ## Determains the minumum jump heighet a player can reach if they barely tap the jump button (and variable_jump_height is true)
-@export var minimum_jump_height := -100
+@export var minimum_jump_height := 100
 
 @export_group("Jump Trojectory")
 ## Maximum amount of points used to visualize player's jump trojectory (WiP)
@@ -82,6 +96,19 @@ var was_on_floor := false
 func _ready():
 	coyote_timer.wait_time = coyote_timer_value
 	jump_buffer_timer.wait_time = jump_buffer_timer_value
+	start_position = global_position
+	victory_height = start_position.y - 10000.0  # 10 000 pixels above starting position
+	_update_timer_display()
+	
+	# Try to load audio nodes if they exist
+	if has_node("jump_sfx_1"):
+		jump_sfx_1 = $jump_sfx_1
+	if has_node("land_sfx_1"):
+		land_sfx_1 = $land_sfx_1
+	if has_node("jump_sfx_1_vari"):
+		jump_sfx_1_vari = $jump_sfx_1_vari
+	if has_node("land_sfx_1_vari"):
+		land_sfx_1_vari = $land_sfx_1_vari
 
 
 # Sets the gravity depending on the context
@@ -133,6 +160,10 @@ func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y += _get_gravity(velocity) * delta
 		_get_movement(air_resistance, air_acceleration, delta)
+
+		# SDT wind procsesing
+		_sdt_wind()
+
 	else:
 		if coyote_timer.is_stopped():
 			coyote_timer.start()
@@ -148,6 +179,27 @@ func _physics_process(delta):
 	
 	if Input.is_action_just_released("Jump"):
 		jump_cut()
+	
+	# Add boost to jump velocity while jump is held (variable jump height)
+	if is_jump_held and Input.is_action_pressed("Jump") and variable_jump_height:
+		if velocity.y < 0.0:  # Only boost while going upward
+			jump_hold_boost += 200.0 * delta  # Boost accumulation rate
+			jump_hold_boost = clamp(jump_hold_boost, 0.0, max_jump_hold_boost)
+			velocity.y -= jump_hold_boost * delta
+	
+	# Start timer on first keyboard input (movement or jump)
+	if not is_timer_running and (Input.is_action_pressed("Move_Left") or Input.is_action_pressed("Move_Right") or Input.is_action_pressed("Jump")):
+		is_timer_running = true
+		print("Timer started on input!")
+	
+	# Update timer if running
+	if is_timer_running:
+		elapsed_time += delta
+		_update_timer_display()
+		
+		# Check if player reached victory height
+		if global_position.y <= victory_height:
+			_on_victory()
 	
 	if velocity != Vector2.ZERO:
 		$AnimatedSprite2D.play("walk")
@@ -166,6 +218,8 @@ func _physics_process(delta):
 	
 	# Check if player just landed (velocity.y is now 0 after move_and_slide)
 	if not was_on_floor and is_on_floor():
+		is_jump_held = false
+		jump_hold_boost = 0.0
 		_on_landed(pre_landing_velocity, current_surface_tag)
 	
 	was_on_floor = is_on_floor()
@@ -175,7 +229,10 @@ func _unhandled_input(event):
 	if event is InputEventKey and event.pressed and not event.echo:
 		var scene_index := _get_scene_shortcut_index(event.keycode)
 		if scene_index != -1:
-			_switch_to_scene(scene_index)
+			if scene_index == 9:  # 0 key - reset player position and timer
+				_reset_player()
+			else:
+				_switch_to_scene(scene_index)
 
 
 func _get_scene_shortcut_index(keycode: Key) -> int:
@@ -204,6 +261,31 @@ func _switch_to_scene(scene_index: int) -> void:
 	print("Switched to scene: ", scene_index + 1, " - ", scene_shortcuts[scene_index])
 
 
+# Update the timer display label
+func _update_timer_display() -> void:
+	timer_label.text = "%.2f" % elapsed_time
+
+
+# Called when the player reaches victory height
+func _on_victory() -> void:
+	is_timer_running = false
+	print("Victory! Final time: %.2f seconds" % elapsed_time)
+	_update_timer_display()
+	$"OSCClient - OUT".send_message("/player/victory", [elapsed_time])
+
+
+# Reset player position and timer to initial state
+func _reset_player() -> void:
+	global_position = start_position
+	velocity = Vector2.ZERO
+	elapsed_time = 0.0
+	is_timer_running = false
+	is_jump_held = false
+	jump_hold_boost = 0.0
+	_update_timer_display()
+	print("Player and timer reset!")
+
+
 func _is_jump_enabled_in_current_scene() -> bool:
 	if jump_enabled_scenes.is_empty():
 		return true
@@ -222,7 +304,15 @@ func jump():
 	
 	if coyote_timer.time_left > 0.0:
 		coyote_timer.stop()
-		velocity.y = jump_velocity
+		is_jump_held = true
+		jump_hold_boost = 0.0
+		
+		# Set initial jump velocity to minimum if variable jump is enabled
+		if variable_jump_height:
+			velocity.y = -(minimum_jump_height / jump_time_to_peak * 2.0)
+		else:
+			velocity.y = jump_velocity
+		
 		print("Player Jumped")
 		$"OSCClient - OUT".send_message("/player/jump", [1])
 		
@@ -242,17 +332,21 @@ func jump():
 
 # Stops jump acceleration if variable_jump_height is enabled
 func jump_cut():
+	is_jump_held = false
+	jump_hold_boost = 0.0
+	
 	if not variable_jump_height:
 		return
 	
-	if velocity.y < minimum_jump_height * up_direction.y:
-		velocity.y = minimum_jump_height * up_direction.y
+	# Limit jump height to minimum if released early
+	if velocity.y < -minimum_jump_height:
+		velocity.y = -minimum_jump_height
 
 # function that runs when player lands
 # Sends velocity and surface data to MAX for folio synthesis using SDT (Sound Design Toolkit)
 func _on_landed(landing_velocity: Vector2, surface_tag: String):
 	# Calculate impact energy from vertical velocity (0.0 to 1.0)
-	var impact_energy = clamp(abs(landing_velocity.y) / max_fall_speed, 0.0, 1.0)
+	var impact_energy = clamp(abs(landing_velocity.y) / max_fall_speed, 0.0, 10.0)
 	
 	# Send to MAX/SDT:
 	# - Strike velocity: use negative vertical velocity for impact intensity
@@ -265,6 +359,7 @@ func _on_landed(landing_velocity: Vector2, surface_tag: String):
 	$"OSCClient - OUT".send_message("/sdt/direction", [sign(landing_velocity.x)])
 	
 	print("Player Landed - Impact Energy: %.2f" % impact_energy)
+	$"OSCClient - OUT".send_message("/player/impact_energy", [impact_energy])
 	$"OSCClient - OUT".send_message("/player/landed", [1])
 	
 	# play landing sfx static sample
@@ -274,3 +369,7 @@ func _on_landed(landing_velocity: Vector2, surface_tag: String):
 	if land_sfx_1_vari:
 		land_sfx_1_vari.pitch_scale = randf_range(0.8, 1.2)
 		land_sfx_1_vari.play()
+		
+func _sdt_wind():
+	# send player velocity to MAX/SDT for wind synthesis
+	$"OSCClient - OUT".send_message("/player/wind_velocity", [velocity.y])

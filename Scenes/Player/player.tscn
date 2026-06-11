@@ -30,6 +30,12 @@ animations = [{
 radius = 7.0
 height = 16.0
 
+[sub_resource type="LabelSettings" id="LabelSettings_timer"]
+font_size = 24
+font_color = Color(1, 1, 1, 1)
+outline_size = 2
+outline_color = Color(0, 0, 0, 1)
+
 [node name="Player" type="CharacterBody2D"]
 position = Vector2(0, -9)
 script = ExtResource("1_4w2it")
@@ -57,3 +63,21 @@ one_shot = true
 [node name="JumpBufferTimer" type="Timer" parent="."]
 wait_time = 0.1
 one_shot = true
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="TimerLabel" type="Label" parent="UILayer"]
+anchor_left = 0.5
+anchor_top = 0.0
+anchor_right = 0.5
+anchor_bottom = 0.0
+offset_left = -50.0
+offset_top = 10.0
+offset_right = 50.0
+offset_bottom = 60.0
+grow_horizontal = 2
+text = "0.00"
+label_settings = SubResource("LabelSettings_timer")
+horizontal_alignment = 1
+vertical_alignment = 1
