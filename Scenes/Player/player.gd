@@ -5,13 +5,15 @@ extends CharacterBody2D
 @onready var jump_buffer_timer = $JumpBufferTimer
 @onready var jump_trojectory_line = $JumpTrojectoryLine
 @onready var timer_label = $UILayer/TimerLabel
+@onready var status_label = $UILayer/StatusLabel
+@onready var score_label = $UILayer/ScoreLabel
 
 # Audio nodes are optional - may not exist in all scenes
 var jump_sfx_1: AudioStreamPlayer
 var land_sfx_1: AudioStreamPlayer
 var jump_sfx_1_vari: AudioStreamPlayer
 var land_sfx_1_vari: AudioStreamPlayer
-
+@onready var wind_sfx: AudioStreamPlayer = $wind_sfx
 
 var was_on_floor := false
 var reset := false
@@ -101,7 +103,10 @@ func _ready():
 	start_position = global_position
 	victory_height = -2510
 	_update_timer_display()
+	_set_prompt_ui()
 	reset = true
+	if wind_sfx:
+		wind_sfx.volume_db = -40.0
 	
 	# Try to load audio nodes if they exist
 	if has_node("jump_sfx_1"):
@@ -112,7 +117,6 @@ func _ready():
 		jump_sfx_1_vari = $jump_sfx_1_vari
 	if has_node("land_sfx_1_vari"):
 		land_sfx_1_vari = $land_sfx_1_vari
-
 
 # Sets the gravity depending on the context
 func _get_gravity(_velocity):
@@ -174,6 +178,8 @@ func _physics_process(delta):
 			jump_buffer_timer.stop()
 			jump()
 		_get_movement(friction, acceleration, delta)
+
+	_update_wind_sfx(delta)
 	
 	_set_sprite_direction(sign(velocity.x))
 	
@@ -194,6 +200,7 @@ func _physics_process(delta):
 	if not is_timer_running and (Input.is_action_pressed("Move_Left") or Input.is_action_pressed("Move_Right") or Input.is_action_pressed("Jump")) and reset:
 		is_timer_running = true
 		reset = false
+		_set_running_ui()
 		print("Timer started on input!")
 	
 	# Update timer if running
@@ -273,6 +280,8 @@ func _update_timer_display() -> void:
 # Called when the player reaches victory height
 func _on_victory() -> void:
 	is_timer_running = false
+	victory_reached = true
+	_set_victory_ui()
 	print("Victory! Final time: %.2f seconds" % elapsed_time)
 	_update_timer_display()
 	$"OSCClient - OUT".send_message("/player/victory", [elapsed_time])
@@ -286,10 +295,27 @@ func _reset_player() -> void:
 	is_timer_running = false
 	is_jump_held = false
 	jump_hold_boost = 0.0
-	_update_timer_display()
-	reset = true
 	victory_reached = false
+	_update_timer_display()
+	_set_prompt_ui()
+	reset = true
 	print("Player and timer reset!")
+
+
+func _set_prompt_ui() -> void:
+	status_label.visible = true
+	status_label.text = "Get to the top!"
+	score_label.visible = false
+
+
+func _set_running_ui() -> void:
+	status_label.visible = false
+	score_label.visible = false
+
+
+func _set_victory_ui() -> void:
+	status_label.visible = false
+	score_label.visible = true
 
 
 func _is_jump_enabled_in_current_scene() -> bool:
@@ -319,6 +345,12 @@ func jump():
 			velocity.y = -(minimum_jump_height / jump_time_to_peak * 2.0)
 		else:
 			velocity.y = jump_velocity
+
+		if wind_sfx:
+			if not wind_sfx.playing:
+				wind_sfx.play()
+			# Immediate audible base level on jump so wind is heard right away.
+			wind_sfx.volume_db = maxf(wind_sfx.volume_db, -16.0)
 		
 		print("Player Jumped at position: ", position)
 		$"OSCClient - OUT".send_message("/player/jump", [1])
@@ -370,13 +402,29 @@ func _on_landed(landing_velocity: Vector2, surface_tag: String):
 	$"OSCClient - OUT".send_message("/player/landed", [1])
 	
 	# play landing sfx static sample
-	if land_sfx_1:
-		land_sfx_1.play()
-		
 	if land_sfx_1_vari:
+		# adjust pitch scale randomly for variation
 		land_sfx_1_vari.pitch_scale = randf_range(0.8, 1.2)
+		# adjust volume based on impact energy (0.0 to 1.0)
+		land_sfx_1_vari.volume_db = lerp(-15.0, -5.0, impact_energy)
 		land_sfx_1_vari.play()
 		
 func _sdt_wind():
 	# send player velocity to MAX/SDT for wind synthesis
 	$"OSCClient - OUT".send_message("/player/wind_velocity", [velocity.y])
+
+
+func _update_wind_sfx(delta: float) -> void:
+	if not wind_sfx:
+		return
+
+	if not is_on_floor():
+		var normalized_speed: float = clamp(abs(velocity.y) / max_fall_speed, 0.0, 1.0)
+		var target_volume_db: float = lerp(-4.0, 10.0, normalized_speed)
+		wind_sfx.volume_db = move_toward(wind_sfx.volume_db, target_volume_db, 140.0 * delta)
+		if not wind_sfx.playing:
+			wind_sfx.play()
+	else:
+		wind_sfx.volume_db = move_toward(wind_sfx.volume_db, -40.0, 100.0 * delta)
+		if wind_sfx.playing and wind_sfx.volume_db <= -39.5:
+			wind_sfx.stop()
