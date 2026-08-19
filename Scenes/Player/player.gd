@@ -33,15 +33,15 @@ var max_jump_hold_boost := 200.0  # Additional velocity boost from holding
 
 @export_group("Movement")
 ## Maximum speed reachable by player
-@export_range(0, 500) var max_speed := 200.0
+@export_range(0, 500) var max_speed := 180.0
 ## Minimum speed when variable_min_speed is set to true & min_speed isn't 0
 @export_range(0, 500) var min_speed := 0.0
 ## Acceleration while on the ground (how quickly the player reaches max speed)
-@export_range(0, 500) var acceleration := 100.0
+@export_range(0, 500) var acceleration := 20.0
 ## Friction while on group (how quickly the player slows down)
 @export_range(0, 50) var friction := 50.0
 ## Acceleration while in the air (how quickly the player reaches max speed)
-@export_range(0, 500) var air_acceleration := 5.0
+@export_range(0, 500) var air_acceleration := 4.0
 ## Air friction while in the air (how quickly the player slows down)
 @export_range(0, 50) var air_resistance := 50.0
 ## Sets a variable max speed depending on how far the joystick is pushed
