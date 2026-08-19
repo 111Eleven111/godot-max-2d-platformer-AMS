@@ -10,7 +10,7 @@ ceiling_db = -5.7
 threshold_db = -7.0
 
 [resource]
-bus/0/volume_db = -0.626003
+bus/0/volume_db = -0.923751
 bus/0/effect/0/effect = SubResource("AudioEffectCompressor_j3pel")
 bus/0/effect/0/enabled = true
 bus/0/effect/1/effect = SubResource("AudioEffectLimiter_j3pel")

@@ -30,6 +30,9 @@ var is_jump_held := false
 var jump_hold_boost := 0.0
 var max_jump_hold_boost := 200.0  # Additional velocity boost from holding
 
+# audio toggles
+var master_bus_muted := false
+
 
 @export_group("Movement")
 ## Maximum speed reachable by player
@@ -244,6 +247,16 @@ func _unhandled_input(event):
 				_reset_player()
 			else:
 				_switch_to_scene(scene_index)
+				
+		
+		if event.keycode == KEY_M:
+			if master_bus_muted:
+				# mute master buss
+				AudioServer.set_bus_volume_db(0, -2)
+				master_bus_muted = false
+			else:
+				AudioServer.set_bus_volume_db(0, -INF)
+				master_bus_muted = true
 
 
 func _get_scene_shortcut_index(keycode: Key) -> int:
