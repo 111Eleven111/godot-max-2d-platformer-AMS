@@ -20,6 +20,20 @@ func _ready() -> void:
 	footstep_player = AudioStreamPlayer.new()
 	add_child(footstep_player)
 
+
+func register_tilemap(tilemap: TileMapLayer) -> void:
+	if tilemap not in tilemaps:
+		tilemaps.append(tilemap)
+
+
+func unregister_tilemap(tilemap: TileMapLayer) -> void:
+	tilemaps.erase(tilemap)
+
+
+func _prune_freed_tilemaps() -> void:
+	tilemaps = tilemaps.filter(func(t): return is_instance_valid(t))
+
+
 func _physics_process(_delta: float) -> void:
 	if cooldown_counter > 0:
 		cooldown_counter -= 1
@@ -29,6 +43,8 @@ func play_footstep(position: Vector2):
 		if debug_tile_checks:
 			print("[Footstep] cooldown active:", cooldown_counter)
 		return
+
+	_prune_freed_tilemaps()
 
 	if debug_tile_checks:
 		print("[Footstep] checking world position:", position)
@@ -42,6 +58,8 @@ func play_footstep(position: Vector2):
 	]
 
 	for tilemap in tilemaps:
+		if not is_instance_valid(tilemap):
+			continue
 		for probe in probe_offsets:
 			var probe_world = position + probe
 			var local_pos = tilemap.to_local(probe_world)

@@ -13,7 +13,7 @@ var jump_sfx_1: AudioStreamPlayer
 var land_sfx_1: AudioStreamPlayer
 var jump_sfx_1_vari: AudioStreamPlayer
 var land_sfx_1_vari: AudioStreamPlayer
-@onready var wind_sfx: AudioStreamPlayer = $WindSFX
+var wind_sfx: AudioStreamPlayer
 
 var was_on_floor := false
 var reset := false
@@ -93,14 +93,23 @@ var master_bus_muted := false
 @export_group("Scene Rules")
 @export var jump_enabled_scenes: PackedStringArray = PackedStringArray([
 	"res://Scenes/Main/main.tscn",
-	"res://Scenes/Main/static-sample-jump.tscn",
-	"res://Scenes/Main/static-sample-variations-jump.tscn"
+	"res://Scenes/Main/scene-1.tscn",
+	"res://Scenes/Main/scene-2.tscn",
+	"res://Scenes/Main/scene-3.tscn",
+	"res://Scenes/Main/scene-4.tscn",
+	"res://Scenes/Main/scene-5.tscn",
+	"res://Scenes/Main/scene-6.tscn"
+])
+@export var godot_muted_scenes: PackedStringArray = PackedStringArray([
+	
 ])
 @export var scene_shortcuts: PackedStringArray = PackedStringArray([
-	"res://Scenes/Main/main.tscn",
-	"res://Scenes/Main/low-accel-SDT-s1.tscn",
-	"res://Scenes/Main/static-sample-jump.tscn",
-	"res://Scenes/Main/static-sample-variations-jump.tscn"
+	"res://Scenes/Main/scene-1.tscn",
+	"res://Scenes/Main/scene-2.tscn",
+	"res://Scenes/Main/scene-3.tscn",
+	"res://Scenes/Main/scene-4.tscn",
+	"res://Scenes/Main/scene-5.tscn",
+	"res://Scenes/Main/scene-6.tscn"
 ])
 
 func _ready():
@@ -111,9 +120,7 @@ func _ready():
 	_update_timer_display()
 	_set_prompt_ui()
 	reset = true
-	if wind_sfx:
-		wind_sfx.volume_db = -40.0
-	
+
 	# Try to load audio nodes if they exist
 	if has_node("jump_sfx_1"):
 		jump_sfx_1 = $jump_sfx_1
@@ -123,6 +130,13 @@ func _ready():
 		jump_sfx_1_vari = $jump_sfx_1_vari
 	if has_node("land_sfx_1_vari"):
 		land_sfx_1_vari = $land_sfx_1_vari
+	if has_node("WindSFX"):
+		wind_sfx = $WindSFX
+	elif has_node("wind_sfx"):
+		wind_sfx = $wind_sfx
+
+	if wind_sfx:
+		wind_sfx.volume_db = -40.0
 
 # Sets the gravity depending on the context
 func _get_gravity(_velocity):
