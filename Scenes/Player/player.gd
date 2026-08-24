@@ -100,8 +100,12 @@ var master_bus_muted := false
 	"res://Scenes/Main/scene-5.tscn",
 	"res://Scenes/Main/scene-6.tscn"
 ])
+## Scenes where Godot AudioStreamPlayers are muted (OSC/MAX output is unchanged)
 @export var godot_muted_scenes: PackedStringArray = PackedStringArray([
-	
+	"res://Scenes/Main/scene-1.tscn",
+	"res://Scenes/Main/scene-2.tscn",
+	"res://Scenes/Main/scene-3.tscn",
+	"res://Scenes/Main/scene-4.tscn"
 ])
 @export var scene_shortcuts: PackedStringArray = PackedStringArray([
 	"res://Scenes/Main/scene-1.tscn",
@@ -137,6 +141,8 @@ func _ready():
 
 	if wind_sfx:
 		wind_sfx.volume_db = -40.0
+
+	_apply_godot_scene_mute()
 
 # Sets the gravity depending on the context
 func _get_gravity(_velocity):
@@ -273,8 +279,9 @@ func _unhandled_input(event):
 				
 		
 		if event.keycode == KEY_M:
+			if _is_godot_muted_in_current_scene():
+				return
 			if master_bus_muted:
-				# mute master buss
 				AudioServer.set_bus_volume_db(0, -2)
 				master_bus_muted = false
 			else:
@@ -365,6 +372,26 @@ func _is_jump_enabled_in_current_scene() -> bool:
 	return current_scene.scene_file_path in jump_enabled_scenes
 
 
+func _is_godot_muted_in_current_scene() -> bool:
+	var current_scene := get_tree().current_scene
+	if not current_scene:
+		return false
+
+	return current_scene.scene_file_path in godot_muted_scenes
+
+
+func _apply_godot_scene_mute() -> void:
+	if _is_godot_muted_in_current_scene():
+		AudioServer.set_bus_volume_db(0, -INF)
+		master_bus_muted = true
+		if wind_sfx and wind_sfx.playing:
+			wind_sfx.stop()
+		print("Godot audio muted for scene: ", get_tree().current_scene.scene_file_path)
+	else:
+		AudioServer.set_bus_volume_db(0, -2)
+		master_bus_muted = false
+
+
 # Adds the player's jump velocity if able
 func jump():
 	
@@ -382,7 +409,7 @@ func jump():
 		else:
 			velocity.y = jump_velocity
 
-		if wind_sfx:
+		if not _is_godot_muted_in_current_scene() and wind_sfx:
 			if not wind_sfx.playing:
 				wind_sfx.play()
 			# Immediate audible base level on jump so wind is heard right away.
@@ -392,10 +419,10 @@ func jump():
 		$"OSCClient - OUT".send_message("/player/jump", [1])
 		
 		# play jump sfx static sample
-		if jump_sfx_1:
+		if not _is_godot_muted_in_current_scene() and jump_sfx_1:
 			jump_sfx_1.play()
 			
-		if jump_sfx_1_vari:
+		if not _is_godot_muted_in_current_scene() and jump_sfx_1_vari:
 			# randomize the pitch scale
 			jump_sfx_1_vari.pitch_scale = randf_range(0.8, 1.2)
 			jump_sfx_1_vari.play()
@@ -438,7 +465,7 @@ func _on_landed(landing_velocity: Vector2, surface_tag: String):
 	$"OSCClient - OUT".send_message("/player/landed", [1])
 	
 	# play landing sfx static sample
-	if land_sfx_1_vari:
+	if not _is_godot_muted_in_current_scene() and land_sfx_1_vari:
 		# adjust pitch scale randomly for variation
 		land_sfx_1_vari.pitch_scale = randf_range(0.8, 1.2)
 		# adjust volume based on impact energy (0.0 to 1.0)
@@ -451,7 +478,7 @@ func _sdt_wind():
 
 
 func _update_wind_sfx(delta: float) -> void:
-	if not wind_sfx:
+	if not wind_sfx or _is_godot_muted_in_current_scene():
 		return
 
 	if not is_on_floor():

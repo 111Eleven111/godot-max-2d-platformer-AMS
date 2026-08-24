@@ -2,11 +2,11 @@ extends Node
 
 var tilemaps: Array[TileMapLayer] = []
 var footstep_player: AudioStreamPlayer
+var osc_client: OSCClient
 var debug_tile_checks := true
 @export_range(1, 30) var cooldown_frames := 5
 var cooldown_counter := 0
-
-@onready var osc_client: Object = preload("res://addons/godOSC/scripts/OSCClient.gd").new()
+const OSC_PORT := 4848
 
 const footstep_sounds = {
 	"cloud": [
@@ -19,6 +19,11 @@ const footstep_sounds = {
 func _ready() -> void:
 	footstep_player = AudioStreamPlayer.new()
 	add_child(footstep_player)
+
+	osc_client = OSCClient.new()
+	osc_client.ip_address = "127.0.0.1"
+	osc_client.port = OSC_PORT
+	add_child(osc_client)
 
 
 func register_tilemap(tilemap: TileMapLayer) -> void:
@@ -84,13 +89,36 @@ func play_footstep(position: Vector2):
 				# footstep_player.play()
 				# cooldown_counter = cooldown_frames
 
-				# instead, use MAX
-				osc_client.send_message("/player/footstep/cloud", [1])
-
-				if debug_tile_checks:
-					print("[Footstep] sent OSC message for cloud step")
+				_send_footstep_osc("")
 				return
+			else:
+				_send_footstep_osc("other")
 
 	if debug_tile_checks:
 		print("[Footstep] no cloud tile matched for this step")
+
+
+func _send_footstep_osc(str: String) -> void:
+	var client := _get_osc_client()
+	if client == null:
+		push_warning("[Footstep] no OSC client available")
+		return
 		
+	if str == "other":
+		client.send_message("/player/footstep/other", [1])
+		return
+		
+
+	client.send_message("/player/footstep/cloud", [1])
+	if debug_tile_checks:
+		print("[Footstep] sent OSC message for cloud step via ", client.name, " port=", client.port)
+
+
+func _get_osc_client() -> OSCClient:
+	var current_scene := get_tree().current_scene
+	if current_scene:
+		var player := current_scene.find_child("Player", true, false)
+		if player and player.has_node("OSCClient - OUT"):
+			return player.get_node("OSCClient - OUT") as OSCClient
+
+	return osc_client

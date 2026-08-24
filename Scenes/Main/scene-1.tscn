@@ -12,7 +12,7 @@
 [ext_resource type="AudioStream" uid="uid://5vv4pp82wj45" path="res://sfx/land/pitch-variations-cut-jump-landing-in-snow01.wav" id="10_yq3et"]
 [ext_resource type="AudioStream" uid="uid://ca14fk7wg4bcw" path="res://sfx/wind_sfx.wav" id="11_20l2p"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_uu3sm"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_g2no1"]
 texture = ExtResource("2_r1hls")
 separation = Vector2i(2, 2)
 texture_region_size = Vector2i(18, 18)
@@ -125,8 +125,11 @@ texture_region_size = Vector2i(18, 18)
 19:1/0 = 0
 0:2/0 = 0
 1:2/0 = 0
+1:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-9, -9, 9, -9, 9, 9, -9, 9)
 2:2/0 = 0
+2:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-9, -9, 9, -9, 9, 9, -9, 9)
 3:2/0 = 0
+3:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-9, -9, 9, -9, 9, 9, -9, 9)
 4:2/0 = 0
 5:2/0 = 0
 6:2/0 = 0
@@ -338,12 +341,12 @@ texture_region_size = Vector2i(18, 18)
 18:8/0 = 0
 19:8/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_56bao"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_r1hls"]
 texture = ExtResource("3_vmd2m")
 texture_region_size = Vector2i(18, 18)
 0:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gknto"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vmd2m"]
 texture = ExtResource("4_srum8")
 texture_region_size = Vector2i(18, 18)
 0:0/0 = 0
@@ -358,7 +361,7 @@ texture_region_size = Vector2i(18, 18)
 0:0/0/terrains_peering_bit/top_side = 0
 0:0/0/terrains_peering_bit/top_right_corner = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0x47p"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_srum8"]
 texture = ExtResource("5_kiv3j")
 texture_region_size = Vector2i(18, 18)
 
@@ -373,10 +376,10 @@ terrain_set_1/terrain_0/name = "Ground"
 terrain_set_1/terrain_0/color = Color(0.152941, 0.443137, 0.341176, 1)
 custom_data_layer_0/name = "cloud"
 custom_data_layer_0/type = 4
-sources/1 = SubResource("TileSetAtlasSource_uu3sm")
-sources/4 = SubResource("TileSetAtlasSource_56bao")
-sources/5 = SubResource("TileSetAtlasSource_gknto")
-sources/6 = SubResource("TileSetAtlasSource_0x47p")
+sources/1 = SubResource("TileSetAtlasSource_g2no1")
+sources/4 = SubResource("TileSetAtlasSource_r1hls")
+sources/5 = SubResource("TileSetAtlasSource_vmd2m")
+sources/6 = SubResource("TileSetAtlasSource_srum8")
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_g2no1")
