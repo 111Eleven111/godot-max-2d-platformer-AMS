@@ -13,10 +13,11 @@ var jump_sfx_1: AudioStreamPlayer
 var land_sfx_1: AudioStreamPlayer
 var jump_sfx_1_vari: AudioStreamPlayer
 var land_sfx_1_vari: AudioStreamPlayer
-@onready var wind_sfx: AudioStreamPlayer = $wind_sfx
+@onready var wind_sfx: AudioStreamPlayer = $WindSFX
 
 var was_on_floor := false
 var reset := false
+var walking_frame_count := 0
 
 # Timer tracking
 var elapsed_time := 0.0
@@ -80,6 +81,8 @@ var master_bus_muted := false
 @export_range(100, 1000) var max_fall_speed := 500.0
 ## Current surface type for folio synthesis (wood, stone, metal, etc.)
 @export var current_surface_tag := "wood"
+## Downward offset from player origin to approximate feet contact for footstep tile checks
+@export_range(0, 64) var footstep_probe_down := 14.0
 
 
 @onready var jump_velocity : float = (2.0 * jump_height) / jump_time_to_peak * -1
@@ -215,10 +218,16 @@ func _physics_process(delta):
 		if position.y <= victory_height:
 			_on_victory()
 	
-	if velocity != Vector2.ZERO:
+	if is_on_floor() and absf(velocity.x) > 0.1:
 		$AnimatedSprite2D.play("walk")
 		$"OSCClient - OUT".send_message("/player/velocity", [velocity.x])
+
+		# every 5th frame, play footstep sound
+		walking_frame_count += 1
+		if walking_frame_count % 5 == 0:
+			_play_footstep()
 	else:
+		walking_frame_count = 0
 		$AnimatedSprite2D.play("idle")
 		$"OSCClient - OUT".send_message("/player/velocity", [0])
 		
@@ -441,3 +450,7 @@ func _update_wind_sfx(delta: float) -> void:
 		wind_sfx.volume_db = move_toward(wind_sfx.volume_db, -40.0, 100.0 * delta)
 		if wind_sfx.playing and wind_sfx.volume_db <= -39.5:
 			wind_sfx.stop()
+			
+func _play_footstep():
+	var foot_position = global_position + Vector2(0, footstep_probe_down)
+	FootStepSoundManager.play_footstep(foot_position)
