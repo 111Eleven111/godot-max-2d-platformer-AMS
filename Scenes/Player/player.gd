@@ -14,6 +14,18 @@ var land_sfx_1: AudioStreamPlayer
 var jump_sfx_1_vari: AudioStreamPlayer
 var land_sfx_1_vari: AudioStreamPlayer
 var wind_sfx: AudioStreamPlayer
+var wind_modulation_timer := 0.1
+var wind_modulation_target_db := 0.5
+var wind_modulation_target_pitch := 1.5
+var wind_modulation_target_pan := 0.0
+
+const JUMP_VARI_BUS := "JumpVariPanBus"
+const LAND_VARI_BUS := "LandVariPanBus"
+const WIND_VARI_BUS := "WindVariPanBus"
+
+var jump_vari_panner: AudioEffectPanner
+var land_vari_panner: AudioEffectPanner
+var wind_vari_panner: AudioEffectPanner
 
 var was_on_floor := false
 var reset := false
@@ -98,7 +110,8 @@ var master_bus_muted := false
 	"res://Scenes/Main/scene-3.tscn",
 	"res://Scenes/Main/scene-4.tscn",
 	"res://Scenes/Main/scene-5.tscn",
-	"res://Scenes/Main/scene-6.tscn"
+	"res://Scenes/Main/scene-6.tscn",
+	"res://Scenes/Main/scene-7.tscn"
 ])
 ## Scenes where Godot AudioStreamPlayers are muted (OSC/MAX output is unchanged)
 @export var godot_muted_scenes: PackedStringArray = PackedStringArray([
@@ -113,7 +126,8 @@ var master_bus_muted := false
 	"res://Scenes/Main/scene-3.tscn",
 	"res://Scenes/Main/scene-4.tscn",
 	"res://Scenes/Main/scene-5.tscn",
-	"res://Scenes/Main/scene-6.tscn"
+	"res://Scenes/Main/scene-6.tscn",
+	"res://Scenes/Main/scene-7.tscn"
 ])
 
 func _ready():
@@ -141,6 +155,8 @@ func _ready():
 
 	if wind_sfx:
 		wind_sfx.volume_db = -40.0
+
+	_configure_scene_variation_audio()
 
 	_apply_godot_scene_mute()
 
@@ -380,6 +396,22 @@ func _is_godot_muted_in_current_scene() -> bool:
 	return current_scene.scene_file_path in godot_muted_scenes
 
 
+func _is_scene_6_active() -> bool:
+	var current_scene := get_tree().current_scene
+	if not current_scene:
+		return false
+
+	return current_scene.scene_file_path == "res://Scenes/Main/scene-6.tscn"
+
+
+func _is_scene_7_active() -> bool:
+	var current_scene := get_tree().current_scene
+	if not current_scene:
+		return false
+
+	return current_scene.scene_file_path == "res://Scenes/Main/scene-7.tscn"
+
+
 func _apply_godot_scene_mute() -> void:
 	if _is_godot_muted_in_current_scene():
 		AudioServer.set_bus_volume_db(0, -INF)
@@ -390,6 +422,72 @@ func _apply_godot_scene_mute() -> void:
 	else:
 		AudioServer.set_bus_volume_db(0, -2)
 		master_bus_muted = false
+
+
+func _ensure_panner_bus(bus_name: String) -> AudioEffectPanner:
+	var bus_index := AudioServer.get_bus_index(bus_name)
+	if bus_index == -1:
+		AudioServer.add_bus()
+		bus_index = AudioServer.get_bus_count() - 1
+		AudioServer.set_bus_name(bus_index, bus_name)
+		AudioServer.set_bus_send(bus_index, "Master")
+
+	if AudioServer.get_bus_effect_count(bus_index) == 0 or not (AudioServer.get_bus_effect(bus_index, 0) is AudioEffectPanner):
+		while AudioServer.get_bus_effect_count(bus_index) > 0:
+			AudioServer.remove_bus_effect(bus_index, 0)
+		var panner := AudioEffectPanner.new()
+		AudioServer.add_bus_effect(bus_index, panner, 0)
+		return panner
+
+	return AudioServer.get_bus_effect(bus_index, 0) as AudioEffectPanner
+
+
+func _configure_scene_variation_audio() -> void:
+	if not (_is_scene_6_active() or _is_scene_7_active()):
+		return
+
+	jump_vari_panner = _ensure_panner_bus(JUMP_VARI_BUS)
+	land_vari_panner = _ensure_panner_bus(LAND_VARI_BUS)
+	wind_vari_panner = _ensure_panner_bus(WIND_VARI_BUS)
+
+	if jump_sfx_1_vari:
+		jump_sfx_1_vari.bus = JUMP_VARI_BUS
+	if land_sfx_1_vari:
+		land_sfx_1_vari.bus = LAND_VARI_BUS
+	if wind_sfx:
+		wind_sfx.bus = WIND_VARI_BUS
+
+
+func _randomize_event_pan(panner: AudioEffectPanner, scene_6_amount: float, scene_7_amount: float) -> void:
+	if not panner:
+		return
+
+	if _is_scene_6_active():
+		panner.pan = randf_range(-scene_6_amount, scene_6_amount)
+	elif _is_scene_7_active():
+		panner.pan = randf_range(-scene_7_amount, scene_7_amount)
+	else:
+		panner.pan = 0.0
+
+
+func _play_wind_with_scene_offset() -> void:
+	if not wind_sfx:
+		return
+
+	var stream_length := 0.0
+	if wind_sfx.stream:
+		stream_length = wind_sfx.stream.get_length()
+
+	if stream_length <= 0.0:
+		wind_sfx.play()
+		return
+
+	if _is_scene_6_active():
+		wind_sfx.play(randf_range(0.0, stream_length * 0.85))
+	elif _is_scene_7_active():
+		wind_sfx.play(randf_range(0.0, stream_length * 0.35))
+	else:
+		wind_sfx.play()
 
 
 # Adds the player's jump velocity if able
@@ -411,7 +509,7 @@ func jump():
 
 		if not _is_godot_muted_in_current_scene() and wind_sfx:
 			if not wind_sfx.playing:
-				wind_sfx.play()
+				_play_wind_with_scene_offset()
 			# Immediate audible base level on jump so wind is heard right away.
 			wind_sfx.volume_db = maxf(wind_sfx.volume_db, -16.0)
 		
@@ -423,8 +521,16 @@ func jump():
 			jump_sfx_1.play()
 			
 		if not _is_godot_muted_in_current_scene() and jump_sfx_1_vari:
-			# randomize the pitch scale
-			jump_sfx_1_vari.pitch_scale = randf_range(0.8, 1.2)
+			_randomize_event_pan(jump_vari_panner, 0.35, 0.08)
+			# Scene 6 gets stronger random modulation than the default scenes.
+			if _is_scene_6_active():
+				jump_sfx_1_vari.pitch_scale = randf_range(0.5, 1.85)
+				jump_sfx_1_vari.volume_db = randf_range(-4.0, 1.0)
+			elif _is_scene_7_active():
+				jump_sfx_1_vari.pitch_scale = randf_range(0.98, 1.02)
+				jump_sfx_1_vari.volume_db = randf_range(-5.2, -4.8)
+			else:
+				jump_sfx_1_vari.pitch_scale = randf_range(0.8, 1.2)
 			jump_sfx_1_vari.play()
 		
 	
@@ -466,10 +572,18 @@ func _on_landed(landing_velocity: Vector2, surface_tag: String):
 	
 	# play landing sfx static sample
 	if not _is_godot_muted_in_current_scene() and land_sfx_1_vari:
-		# adjust pitch scale randomly for variation
-		land_sfx_1_vari.pitch_scale = randf_range(0.8, 1.2)
-		# adjust volume based on impact energy (0.0 to 1.0)
-		land_sfx_1_vari.volume_db = lerp(-15.0, -5.0, impact_energy)
+		_randomize_event_pan(land_vari_panner, 0.4, 0.1)
+		# Scene 6 gets wider variation on top of impact-driven volume.
+		if _is_scene_6_active():
+			land_sfx_1_vari.pitch_scale = randf_range(0.4, 1.9)
+			land_sfx_1_vari.volume_db = lerp(-16.0, -4.0, impact_energy) + randf_range(-2.0, 2.0)
+		elif _is_scene_7_active():
+			land_sfx_1_vari.pitch_scale = randf_range(0.98, 1.02)
+			land_sfx_1_vari.volume_db = lerp(-5.2, -4.0, impact_energy) + randf_range(-0.2, 0.2)
+		else:
+			land_sfx_1_vari.pitch_scale = randf_range(0.7, 1)
+			# adjust volume based on impact energy (0.0 to 1.0)
+			land_sfx_1_vari.volume_db = lerp(-5.0, -2.0, impact_energy)
 		land_sfx_1_vari.play()
 		
 func _sdt_wind():
@@ -481,13 +595,56 @@ func _update_wind_sfx(delta: float) -> void:
 	if not wind_sfx or _is_godot_muted_in_current_scene():
 		return
 
+	var is_scene_6 := _is_scene_6_active()
+	var is_scene_7 := _is_scene_7_active()
+
 	if not is_on_floor():
 		var normalized_speed: float = clamp(abs(velocity.y) / max_fall_speed, 0.0, 1.0)
 		var target_volume_db: float = lerp(-4.0, 10.0, normalized_speed)
+
+		if is_scene_6:
+			wind_modulation_timer -= delta
+			if wind_modulation_timer <= 0.0:
+				wind_modulation_timer = randf_range(0.06, 0.2)
+				wind_modulation_target_db = randf_range(-3.0, 3.0)
+				wind_modulation_target_pitch = randf_range(0.82, 1.22)
+				wind_modulation_target_pan = randf_range(-0.4, 0.4)
+
+			target_volume_db += wind_modulation_target_db
+			wind_sfx.pitch_scale = move_toward(wind_sfx.pitch_scale, wind_modulation_target_pitch, 4.0 * delta)
+			if wind_vari_panner:
+				wind_vari_panner.pan = move_toward(wind_vari_panner.pan, wind_modulation_target_pan, 4.0 * delta)
+		elif is_scene_7:
+			wind_modulation_timer -= delta
+			if wind_modulation_timer <= 0.0:
+				wind_modulation_timer = randf_range(0.3, 0.6)
+				wind_modulation_target_db = randf_range(-0.4, 0.4)
+				wind_modulation_target_pitch = randf_range(0.98, 1.02)
+				wind_modulation_target_pan = randf_range(-0.08, 0.08)
+
+			target_volume_db += wind_modulation_target_db
+			wind_sfx.pitch_scale = move_toward(wind_sfx.pitch_scale, wind_modulation_target_pitch, 1.5 * delta)
+			if wind_vari_panner:
+				wind_vari_panner.pan = move_toward(wind_vari_panner.pan, wind_modulation_target_pan, 1.5 * delta)
+		else:
+			wind_modulation_timer = 0.0
+			wind_modulation_target_db = 0.0
+			wind_modulation_target_pitch = 1.0
+			wind_modulation_target_pan = 0.0
+			wind_sfx.pitch_scale = move_toward(wind_sfx.pitch_scale, 1.0, 4.0 * delta)
+			if wind_vari_panner:
+				wind_vari_panner.pan = move_toward(wind_vari_panner.pan, 0.0, 3.0 * delta)
+
 		wind_sfx.volume_db = move_toward(wind_sfx.volume_db, target_volume_db, 140.0 * delta)
 		if not wind_sfx.playing:
-			wind_sfx.play()
+			_play_wind_with_scene_offset()
 	else:
+		if is_scene_6:
+			wind_sfx.pitch_scale = move_toward(wind_sfx.pitch_scale, 1.0, 6.0 * delta)
+		elif is_scene_7:
+			wind_sfx.pitch_scale = move_toward(wind_sfx.pitch_scale, 1.0, 3.0 * delta)
+		if wind_vari_panner:
+			wind_vari_panner.pan = move_toward(wind_vari_panner.pan, 0.0, 3.0 * delta)
 		wind_sfx.volume_db = move_toward(wind_sfx.volume_db, -40.0, 100.0 * delta)
 		if wind_sfx.playing and wind_sfx.volume_db <= -39.5:
 			wind_sfx.stop()
