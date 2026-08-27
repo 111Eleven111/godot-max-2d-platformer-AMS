@@ -49,10 +49,14 @@ func play_footstep(position: Vector2):
 			print("[Footstep] cooldown active:", cooldown_counter)
 		return
 
-	_prune_freed_tilemaps()
-
 	if debug_tile_checks:
 		print("[Footstep] checking world position:", position)
+
+	_send_footstep_osc(get_tile_type(position))
+
+
+func get_tile_type(position: Vector2) -> String:
+	_prune_freed_tilemaps()
 
 	var probe_offsets = [
 		Vector2.ZERO,
@@ -61,41 +65,24 @@ func play_footstep(position: Vector2):
 		Vector2(-4, 8),
 		Vector2(4, 8)
 	]
+	var tile_types = ["cloud", "grass", "dirt", "snow", "mushroom", "water_tube", "leaves"]
 
 	for tilemap in tilemaps:
-		if not is_instance_valid(tilemap):
-			continue
 		for probe in probe_offsets:
 			var probe_world = position + probe
 			var local_pos = tilemap.to_local(probe_world)
 			var tile_position = tilemap.local_to_map(local_pos)
 			var data = tilemap.get_cell_tile_data(tile_position)
-			var cloud_tag = "<no data>"
-
-			if data:
-				cloud_tag = str(data.get_custom_data("cloud"))
 
 			if debug_tile_checks:
-				print("[Footstep] tilemap=", tilemap.name, " probe=", probe, " local=", local_pos, " cell=", tile_position, " cloud=", cloud_tag)
+				print("[Footstep] tilemap=", tilemap.name, " probe=", probe, " local=", local_pos, " cell=", tile_position)
 
-			# play cloud footstep if the tile has the "cloud" custom data
-			if data and data.get_custom_data("cloud") == "cloud":
+			if data:
+				for tile_type in tile_types:
+					if data.get_custom_data(tile_type) == tile_type:
+						return tile_type
 
-				if debug_tile_checks:
-					print("[Footstep] cloud step matched on ", tilemap.name, " at cell ", tile_position)
-
-				# audiostream player method:
-				# footstep_player.stream = footstep_sounds["cloud"].pick_random()
-				# footstep_player.play()
-				# cooldown_counter = cooldown_frames
-
-				_send_footstep_osc("")
-				return
-			else:
-				_send_footstep_osc("other")
-
-	if debug_tile_checks:
-		print("[Footstep] no cloud tile matched for this step")
+	return "other"
 
 
 func _send_footstep_osc(str: String) -> void:
@@ -103,15 +90,11 @@ func _send_footstep_osc(str: String) -> void:
 	if client == null:
 		push_warning("[Footstep] no OSC client available")
 		return
-		
-	if str == "other":
-		client.send_message("/player/footstep/other", [1])
-		return
-		
 
-	client.send_message("/player/footstep/cloud", [1])
+	client.send_message("/player/footstep/" + str, [1])
+
 	if debug_tile_checks:
-		print("[Footstep] sent OSC message for cloud step via ", client.name, " port=", client.port)
+		print("[Footstep] sent OSC message of type: ", str, " via ", client.name, " port=", client.port)
 
 
 func _get_osc_client() -> OSCClient:

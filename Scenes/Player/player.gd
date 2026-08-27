@@ -1,6 +1,9 @@
 class_name Player
 extends CharacterBody2D
 
+# debug
+var debug_osc_msg = true
+
 @onready var coyote_timer = $CoyoteTimer
 @onready var jump_buffer_timer = $JumpBufferTimer
 @onready var jump_trojectory_line = $JumpTrojectoryLine
@@ -553,6 +556,9 @@ func jump_cut():
 # function that runs when player lands
 # Sends velocity and surface data to MAX for folio synthesis using SDT (Sound Design Toolkit)
 func _on_landed(landing_velocity: Vector2, surface_tag: String):
+
+	_check_tile_type_on_land()
+
 	# Calculate impact energy from vertical velocity (0.0 to 1.0)
 	var impact_energy = clamp(abs(landing_velocity.y) / max_fall_speed, 0.0, 10.0)
 	
@@ -652,3 +658,19 @@ func _update_wind_sfx(delta: float) -> void:
 func _play_footstep():
 	var foot_position = global_position + Vector2(0, footstep_probe_down)
 	FootStepSoundManager.play_footstep(foot_position)
+
+# possible surfaces: var tile_types = ["cloud", "grass", "dirt", "snow", "mushroom", "water_tube", "leaves"]
+
+# function to check what tile type the player landed on
+# on land, send a bang to max over OSC to mark first impackt
+func _check_tile_type_on_land():
+	var collision := get_last_slide_collision()
+	if not collision:
+		return
+
+	var tile_type := FootStepSoundManager.get_tile_type(collision.get_position())
+	$"OSCClient - OUT".send_message("/player/landed/" + tile_type, [1])
+
+	if debug_osc_msg:
+		print("OSC Sent /player/landed/" + tile_type)
+		
