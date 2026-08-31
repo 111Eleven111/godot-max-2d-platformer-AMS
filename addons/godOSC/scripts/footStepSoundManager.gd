@@ -94,7 +94,7 @@ func _send_footstep_osc(str: String) -> void:
 	client.send_message("/player/footstep/" + str, [1])
 
 	if debug_tile_checks:
-		print("[Footstep] sent OSC message of type: ", str, " via ", client.name, " port=", client.port)
+		print("[Footstep] sent OSC message of type: ", str, " via ", client.name, " port=", client.port, " msg format: /player/footstep/" + str)
 
 
 func _get_osc_client() -> OSCClient:

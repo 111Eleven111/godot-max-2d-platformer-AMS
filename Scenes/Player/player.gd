@@ -33,6 +33,7 @@ var wind_vari_panner: AudioEffectPanner
 var was_on_floor := false
 var reset := false
 var walking_frame_count := 0
+var walking_tile_type := ""
 
 # Timer tracking
 var elapsed_time := 0.0
@@ -60,7 +61,7 @@ var master_bus_muted := false
 ## Friction while on group (how quickly the player slows down)
 @export_range(0, 50) var friction := 50.0
 ## Acceleration while in the air (how quickly the player reaches max speed)
-@export_range(0, 500) var air_acceleration := 4.0
+@export_range(0, 500) var air_acceleration := 9.0
 ## Air friction while in the air (how quickly the player slows down)
 @export_range(0, 50) var air_resistance := 50.0
 ## Sets a variable max speed depending on how far the joystick is pushed
@@ -208,6 +209,7 @@ func _set_sprite_direction(direction: int) -> void:
 		$AnimatedSprite2D.flip_h = false
 
 
+# Physics process handles player movement, jumping, and audio updates
 func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y += _get_gravity(velocity) * delta
@@ -215,6 +217,10 @@ func _physics_process(delta):
 
 		# SDT wind procsesing
 		_sdt_wind()
+
+		# check if player collides mid air and send a bang to MAX/SDT for folio synthesis
+		if _is_on_wall():
+			$"OSCClient - OUT".send_message("/player/collided", [1])
 
 	else:
 		if coyote_timer.is_stopped():
@@ -259,7 +265,7 @@ func _physics_process(delta):
 	
 	if is_on_floor() and absf(velocity.x) > 0.1:
 		$AnimatedSprite2D.play("walk")
-		$"OSCClient - OUT".send_message("/player/velocity", [velocity.x])
+		# $"OSCClient - OUT".send_message("/player/velocity", [velocity.x])
 
 		# every 5th frame, play footstep sound
 		walking_frame_count += 1
@@ -268,7 +274,7 @@ func _physics_process(delta):
 	else:
 		walking_frame_count = 0
 		$AnimatedSprite2D.play("idle")
-		$"OSCClient - OUT".send_message("/player/velocity", [0])
+		# $"OSCClient - OUT".send_message("/player/velocity", [0])
 		
 #	if Input.is_action_just_pressed("Preview_Jump"):
 #		_projected_jump_trojectory(delta, sign(velocity.x))
@@ -277,6 +283,7 @@ func _physics_process(delta):
 	var pre_landing_velocity = velocity
 	
 	move_and_slide()
+	_walking_on_tile()
 	
 	# Check if player just landed (velocity.y is now 0 after move_and_slide)
 	if not was_on_floor and is_on_floor():
@@ -575,6 +582,10 @@ func _on_landed(landing_velocity: Vector2, surface_tag: String):
 	print("Player Landed - Impact Energy: %.2f" % impact_energy)
 	$"OSCClient - OUT".send_message("/player/impact_energy", [impact_energy])
 	$"OSCClient - OUT".send_message("/player/landed", [1])
+
+	# also send tile type
+	$"OSCClient - OUT".send_message("/player/tile_type", [surface_tag])
+
 	
 	# play landing sfx static sample
 	if not _is_godot_muted_in_current_scene() and land_sfx_1_vari:
@@ -591,6 +602,9 @@ func _on_landed(landing_velocity: Vector2, surface_tag: String):
 			# adjust volume based on impact energy (0.0 to 1.0)
 			land_sfx_1_vari.volume_db = lerp(-5.0, -2.0, impact_energy)
 		land_sfx_1_vari.play()
+
+	# send player height to MAX
+	$"OSCClient - OUT".send_message("/player/height", [global_position.y])
 		
 func _sdt_wind():
 	# send player velocity to MAX/SDT for wind synthesis
@@ -673,4 +687,33 @@ func _check_tile_type_on_land():
 
 	if debug_osc_msg:
 		print("OSC Sent /player/landed/" + tile_type)
-		
+
+
+# function to check what tile type the player is walking on
+# send a bang when starting walk on a tile, abd send a bang when leaving/stopping walking a tile
+func _walking_on_tile():
+	var is_walking := is_on_floor() and absf(velocity.x) > 0.1
+	var current_tile_type := ""
+
+	if is_walking:
+		var foot_position := global_position + Vector2(0, footstep_probe_down)
+		current_tile_type = FootStepSoundManager.get_tile_type(foot_position)
+
+	if walking_tile_type != current_tile_type:
+		if not walking_tile_type.is_empty():
+			$"OSCClient - OUT".send_message("/player/running/" + walking_tile_type, [0])
+
+		walking_tile_type = current_tile_type
+
+		if not walking_tile_type.is_empty():
+			$"OSCClient - OUT".send_message("/player/running/" + walking_tile_type, [1])
+
+			print("TEST OSC Sent /player/running/" + walking_tile_type)
+
+# function to check if the player is colliding with anything
+func _is_on_wall() -> bool:
+	var collision := get_last_slide_collision()
+	if not collision:
+		return false
+	
+	return collision.get_collider() != null
