@@ -4,6 +4,8 @@ extends CharacterBody2D
 # debug
 var debug_osc_msg = true
 
+
+# Player node references
 @onready var coyote_timer = $CoyoteTimer
 @onready var jump_buffer_timer = $JumpBufferTimer
 @onready var jump_trojectory_line = $JumpTrojectoryLine
@@ -22,6 +24,7 @@ var wind_modulation_target_db := 0.5
 var wind_modulation_target_pitch := 1.5
 var wind_modulation_target_pan := 0.0
 
+# MAX SDT variation variables
 const JUMP_VARI_BUS := "JumpVariPanBus"
 const LAND_VARI_BUS := "LandVariPanBus"
 const WIND_VARI_BUS := "WindVariPanBus"
@@ -30,6 +33,8 @@ var jump_vari_panner: AudioEffectPanner
 var land_vari_panner: AudioEffectPanner
 var wind_vari_panner: AudioEffectPanner
 
+
+# player state variables
 var was_on_floor := false
 var reset := false
 var walking_frame_count := 0
@@ -50,6 +55,11 @@ var max_jump_hold_boost := 200.0  # Additional velocity boost from holding
 # audio toggles
 var master_bus_muted := false
 
+# Study telemetry / session logging
+var telemetry_session_active := false
+var telemetry_file: FileAccess
+var telemetry_file_path := ""
+var telemetry_session_id := ""
 
 @export_group("Movement")
 ## Maximum speed reachable by player
@@ -101,11 +111,13 @@ var master_bus_muted := false
 @export_range(0, 64) var footstep_probe_down := 14.0
 
 
+# set velocity/gravity
 @onready var jump_velocity : float = (2.0 * jump_height) / jump_time_to_peak * -1
 @onready var jump_gravity : float = (-2.0 * jump_height) / (jump_time_to_peak * jump_time_to_peak) * -1
 @onready var fall_gravity : float = (-2.0 * jump_height) / (jump_time_to_descent * jump_time_to_descent) * -1
 
 
+# scene rules
 @export_group("Scene Rules")
 @export var jump_enabled_scenes: PackedStringArray = PackedStringArray([
 	"res://Scenes/Main/main.tscn",
@@ -161,8 +173,94 @@ func _ready():
 		wind_sfx.volume_db = -40.0
 
 	_configure_scene_variation_audio()
-
+	_initialize_telemetry_for_current_scene()
 	_apply_godot_scene_mute()
+
+func _exit_tree():
+	if telemetry_session_active:
+		_stop_telemetry_session("scene_unload")
+
+func _initialize_telemetry_for_current_scene() -> void:
+	var current_scene_path := ""
+	if get_tree().current_scene:
+		current_scene_path = get_tree().current_scene.scene_file_path
+
+	if current_scene_path.ends_with("scene-1.tscn"):
+		_start_telemetry_session()
+
+func _start_telemetry_session() -> void:
+	if telemetry_session_active:
+		return
+
+	var telemetry_dir := "user://telemetry"
+	var dir_access := DirAccess.open("user://")
+	if dir_access and not dir_access.dir_exists("telemetry"):
+		dir_access.make_dir_recursive("telemetry")
+
+	var timestamp := Time.get_datetime_string_from_system().replace(":", "-").replace(" ", "_")
+	telemetry_session_id = "session_" + timestamp
+	telemetry_file_path = telemetry_dir + "/" + telemetry_session_id + ".csv"
+	telemetry_file = FileAccess.open(telemetry_file_path, FileAccess.WRITE)
+	if telemetry_file == null:
+		push_error("Could not open telemetry log: %s (error %s)" % [telemetry_file_path, FileAccess.get_open_error()])
+		return
+
+	telemetry_session_active = true
+	_write_telemetry_row(["timestamp_seconds", "scene_path", "event", "x", "y", "velocity_x", "velocity_y", "action", "info"])
+	_log_telemetry_event("session_start", {"scene": _current_scene_path()})
+	print("Telemetry started: ", telemetry_file_path)
+
+func _stop_telemetry_session(reason: String = "scene_change") -> void:
+	if not telemetry_session_active:
+		return
+
+	_log_telemetry_event("session_end", {"reason": reason})
+	if telemetry_file:
+		telemetry_file.flush()
+		telemetry_file = null
+	telemetry_session_active = false
+	print("Telemetry stopped: ", telemetry_file_path, " reason: ", reason)
+
+func _current_scene_path() -> String:
+	if get_tree().current_scene:
+		return get_tree().current_scene.scene_file_path
+	return ""
+
+func _csv_escape(value) -> String:
+	var text := String(value)
+	text = text.replace("\"", "\"\"")
+	if text.find(",") != -1 or text.find("\n") != -1 or text.find("\"") != -1:
+		text = "\"" + text + "\""
+	return text
+
+func _write_telemetry_row(row: Array) -> void:
+	if telemetry_file == null:
+		return
+	var csv_line := ""
+	for i in range(row.size()):
+		if i > 0:
+			csv_line += ","
+		csv_line += _csv_escape(row[i])
+	telemetry_file.store_line(csv_line)
+
+func _log_telemetry_event(event_name: String, data: Dictionary = {}) -> void:
+	if not telemetry_session_active or telemetry_file == null:
+		return
+
+	var mac_time := float(Time.get_ticks_msec()) / 1000.0
+	var row := [
+		str(mac_time),
+		_current_scene_path(),
+		event_name,
+		str(position.x),
+		str(position.y),
+		str(velocity.x),
+		str(velocity.y),
+		String(data.get("action", "")),
+		String(data.get("info", ""))
+	]
+	_write_telemetry_row(row)
+
 
 # Sets the gravity depending on the context
 func _get_gravity(_velocity):
@@ -234,10 +332,16 @@ func _physics_process(delta):
 	
 	_set_sprite_direction(sign(velocity.x))
 	
+	if Input.is_action_just_pressed("Move_Left"):
+		_log_telemetry_event("move_left_pressed", {"action": "Move_Left", "info": "pressed"})
+	if Input.is_action_just_pressed("Move_Right"):
+		_log_telemetry_event("move_right_pressed", {"action": "Move_Right", "info": "pressed"})
 	if Input.is_action_just_pressed("Jump"):
+		_log_telemetry_event("jump_input_pressed", {"action": "Jump", "info": "pressed"})
 		jump()
 	
 	if Input.is_action_just_released("Jump"):
+		_log_telemetry_event("jump_input_released", {"action": "Jump", "info": "released"})
 		jump_cut()
 	
 	# Add boost to jump velocity while jump is held (variable jump height)
@@ -295,6 +399,7 @@ func _physics_process(delta):
 
 
 func _unhandled_input(event):
+	# switch scene
 	if event is InputEventKey and event.pressed and not event.echo:
 		var scene_index := _get_scene_shortcut_index(event.keycode)
 		if scene_index != -1:
@@ -304,6 +409,7 @@ func _unhandled_input(event):
 				_switch_to_scene(scene_index)
 				
 		
+		# mute godot audio master
 		if event.keycode == KEY_M:
 			if _is_godot_muted_in_current_scene():
 				return
@@ -335,6 +441,11 @@ func _switch_to_scene(scene_index: int) -> void:
 
 	if get_tree().current_scene and get_tree().current_scene.scene_file_path == scene_path:
 		return
+
+	var previous_scene_path := _current_scene_path()
+	_log_telemetry_event("scene_transition", {"action": "switch", "info": "from_%s_to_%s" % [previous_scene_path, scene_path]})
+	if telemetry_session_active:
+		_stop_telemetry_session("scene_switch")
 
 	get_tree().change_scene_to_file(scene_path)
 
@@ -523,6 +634,7 @@ func jump():
 			# Immediate audible base level on jump so wind is heard right away.
 			wind_sfx.volume_db = maxf(wind_sfx.volume_db, -16.0)
 		
+		_log_telemetry_event("jump_executed", {"action": "jump", "info": "x_%s_y_%s" % [position.x, position.y]})
 		print("Player Jumped at position: ", position)
 		$"OSCClient - OUT".send_message("/player/jump", [1])
 		
@@ -565,6 +677,7 @@ func jump_cut():
 func _on_landed(landing_velocity: Vector2, surface_tag: String):
 
 	_check_tile_type_on_land()
+	_log_telemetry_event("landed", {"action": "land", "info": "surface_%s_impact_%s" % [surface_tag, str(clamp(abs(landing_velocity.y) / max_fall_speed, 0.0, 10.0))]})
 
 	# Calculate impact energy from vertical velocity (0.0 to 1.0)
 	var impact_energy = clamp(abs(landing_velocity.y) / max_fall_speed, 0.0, 10.0)
