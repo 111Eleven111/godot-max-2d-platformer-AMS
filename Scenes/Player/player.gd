@@ -47,6 +47,9 @@ var start_position := Vector2.ZERO
 var victory_height := 10000
 var victory_reached := false
 
+# Score tracking
+var score := 0
+
 # Jump tracking for variable jump height
 var is_jump_held := false
 var jump_hold_boost := 0.0

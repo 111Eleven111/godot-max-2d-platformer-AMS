@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=4 uid="uid://cgbtgfu77mojo"]
+[gd_scene load_steps=20 format=4 uid="uid://cgbtgfu77mojo"]
 
 [ext_resource type="Script" uid="uid://dprvbi4f1qvkd" path="res://Scenes/Main/main.gd" id="1_g2no1"]
 [ext_resource type="Texture2D" uid="uid://baxt2l6h1o5f5" path="res://Assets/Tilemap/tiles.png" id="2_r1hls"]
@@ -11,6 +11,8 @@
 [ext_resource type="AudioStream" uid="uid://csxpeaxvbetjh" path="res://sfx/jump/jump-wosh.wav" id="9_7quv2"]
 [ext_resource type="AudioStream" uid="uid://5vv4pp82wj45" path="res://sfx/land/pitch-variations-cut-jump-landing-in-snow01.wav" id="10_yq3et"]
 [ext_resource type="AudioStream" uid="uid://ca14fk7wg4bcw" path="res://sfx/wind_sfx.wav" id="11_20l2p"]
+[ext_resource type="Script" uid="uid://dx7rb3jact48a" path="res://Scenes/Main/coin.gd" id="12_r1hls"]
+[ext_resource type="Texture2D" uid="uid://c17sj7lalbq4g" path="res://Assets/Tiles/tile_0151.png" id="13_vmd2m"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_g2no1"]
 texture = ExtResource("2_r1hls")
@@ -450,6 +452,8 @@ sources/4 = SubResource("TileSetAtlasSource_r1hls")
 sources/5 = SubResource("TileSetAtlasSource_vmd2m")
 sources/6 = SubResource("TileSetAtlasSource_srum8")
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_vmd2m"]
+
 [node name="Main" type="Node2D"]
 script = ExtResource("1_g2no1")
 
@@ -467,7 +471,7 @@ tile_set = SubResource("TileSet_am5au")
 rendering_quadrant_size = 18
 script = ExtResource("6_1rki1")
 
-[node name="Player" parent="." instance=ExtResource("7_gaynw")]
+[node name="Player" parent="." groups=["Player"] instance=ExtResource("7_gaynw")]
 position = Vector2(392, 624)
 
 [node name="OSCClient - OUT" type="Node" parent="Player"]
@@ -489,3 +493,169 @@ volume_db = 6.09
 [node name="test" type="ItemList" parent="."]
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="coin" type="Area2D" parent="."]
+position = Vector2(478, 543)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin2" type="Area2D" parent="."]
+position = Vector2(441, 378)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin2"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin2"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin3" type="Area2D" parent="."]
+position = Vector2(685, 326)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin3"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin3"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin4" type="Area2D" parent="."]
+position = Vector2(301, 73)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin4"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin4"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin5" type="Area2D" parent="."]
+position = Vector2(253, 214)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin5"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin5"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin6" type="Area2D" parent="."]
+position = Vector2(29, 70)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin6"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin6"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin7" type="Area2D" parent="."]
+position = Vector2(10, 253)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin7"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin7"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin8" type="Area2D" parent="."]
+position = Vector2(794, 40)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin8"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin8"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin9" type="Area2D" parent="."]
+position = Vector2(496, -126)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin9"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin9"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin10" type="Area2D" parent="."]
+position = Vector2(486, -454)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin10"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin10"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin11" type="Area2D" parent="."]
+position = Vector2(735, -367)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin11"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin11"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin12" type="Area2D" parent="."]
+position = Vector2(848, -488)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin12"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin12"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin13" type="Area2D" parent="."]
+position = Vector2(944, -490)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin13"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin13"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin14" type="Area2D" parent="."]
+position = Vector2(230, -457)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin14"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin14"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin15" type="Area2D" parent="."]
+position = Vector2(444, -626)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin15"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin15"]
+texture = ExtResource("13_vmd2m")
+
+[connection signal="body_entered" from="coin" to="coin" method="_on_body_entered"]
+[connection signal="body_entered" from="coin2" to="coin2" method="_on_body_entered"]
+[connection signal="body_entered" from="coin3" to="coin3" method="_on_body_entered"]
+[connection signal="body_entered" from="coin4" to="coin4" method="_on_body_entered"]
+[connection signal="body_entered" from="coin5" to="coin5" method="_on_body_entered"]
+[connection signal="body_entered" from="coin6" to="coin6" method="_on_body_entered"]
+[connection signal="body_entered" from="coin7" to="coin7" method="_on_body_entered"]
+[connection signal="body_entered" from="coin8" to="coin8" method="_on_body_entered"]
+[connection signal="body_entered" from="coin9" to="coin9" method="_on_body_entered"]
+[connection signal="body_entered" from="coin10" to="coin10" method="_on_body_entered"]
+[connection signal="body_entered" from="coin11" to="coin11" method="_on_body_entered"]
+[connection signal="body_entered" from="coin12" to="coin12" method="_on_body_entered"]
+[connection signal="body_entered" from="coin13" to="coin13" method="_on_body_entered"]
+[connection signal="body_entered" from="coin14" to="coin14" method="_on_body_entered"]
+[connection signal="body_entered" from="coin15" to="coin15" method="_on_body_entered"]
