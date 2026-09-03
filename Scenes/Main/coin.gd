@@ -26,9 +26,14 @@ func _send_coin_sfx_osc() -> void:
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("Player"):
-		body.score += 1
+		var player := body as Player
+		if player == null:
+			return
+
+		player.score += 1
+		player.log_coin_collected(name, player.score)
 		self.queue_free()
-		print(body.score)
+		print(player.score)
 
 		# Send OSC message to indicate coin collection
 		_send_coin_sfx_osc()

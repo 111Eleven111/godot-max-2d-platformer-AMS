@@ -264,6 +264,18 @@ func _log_telemetry_event(event_name: String, data: Dictionary = {}) -> void:
 	]
 	_write_telemetry_row(row)
 
+func log_coin_collected(coin_id: String, new_score: int) -> void:
+	_log_telemetry_event("coin_collected", {
+		"action": "collect_coin",
+		"info": "coin_%s_score_%d" % [coin_id, new_score]
+	})
+
+func log_external_telemetry_event(event_name: String, value_text: String) -> void:
+	_log_telemetry_event(event_name, {
+		"action": "osc_received",
+		"info": "value_%s" % value_text
+	})
+
 
 # Sets the gravity depending on the context
 func _get_gravity(_velocity):
