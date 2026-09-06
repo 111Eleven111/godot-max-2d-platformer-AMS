@@ -573,6 +573,46 @@ shape = SubResource("CircleShape2D_vmd2m")
 [node name="Sprite2D" type="Sprite2D" parent="coin15"]
 texture = ExtResource("13_vmd2m")
 
+[node name="coin16" type="Area2D" parent="."]
+position = Vector2(838, -487)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin16"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin16"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin17" type="Area2D" parent="."]
+position = Vector2(874, -487)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin17"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin17"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin18" type="Area2D" parent="."]
+position = Vector2(910, -487)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin18"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin18"]
+texture = ExtResource("13_vmd2m")
+
+[node name="coin19" type="Area2D" parent="."]
+position = Vector2(946, -487)
+script = ExtResource("12_r1hls")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="coin19"]
+shape = SubResource("CircleShape2D_vmd2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="coin19"]
+texture = ExtResource("13_vmd2m")
+
 [connection signal="body_entered" from="coin" to="coin" method="_on_body_entered"]
 [connection signal="body_entered" from="coin2" to="coin2" method="_on_body_entered"]
 [connection signal="body_entered" from="coin3" to="coin3" method="_on_body_entered"]
@@ -580,3 +620,7 @@ texture = ExtResource("13_vmd2m")
 [connection signal="body_entered" from="coin9" to="coin9" method="_on_body_entered"]
 [connection signal="body_entered" from="coin11" to="coin11" method="_on_body_entered"]
 [connection signal="body_entered" from="coin15" to="coin15" method="_on_body_entered"]
+[connection signal="body_entered" from="coin16" to="coin16" method="_on_body_entered"]
+[connection signal="body_entered" from="coin17" to="coin17" method="_on_body_entered"]
+[connection signal="body_entered" from="coin18" to="coin18" method="_on_body_entered"]
+[connection signal="body_entered" from="coin19" to="coin19" method="_on_body_entered"]

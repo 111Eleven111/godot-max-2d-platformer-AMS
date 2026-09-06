@@ -9,9 +9,11 @@ var debug_osc_msg = true
 @onready var coyote_timer = $CoyoteTimer
 @onready var jump_buffer_timer = $JumpBufferTimer
 @onready var jump_trojectory_line = $JumpTrojectoryLine
+# UI node references
 @onready var timer_label = $UILayer/TimerLabel
 @onready var status_label = $UILayer/StatusLabel
 @onready var score_label = $UILayer/ScoreLabel
+@onready var coin_counter_label = $UILayer/CoinCounterLabel
 
 # Audio nodes are optional - may not exist in all scenes
 var jump_sfx_1: AudioStreamPlayer
@@ -394,6 +396,9 @@ func _physics_process(delta):
 		walking_frame_count = 0
 		$AnimatedSprite2D.play("idle")
 		# $"OSCClient - OUT".send_message("/player/velocity", [0])
+
+	# update coin score display
+	coin_counter_label.text = str(score)
 		
 #	if Input.is_action_just_pressed("Preview_Jump"):
 #		_projected_jump_trojectory(delta, sign(velocity.x))
@@ -495,17 +500,21 @@ func _reset_player() -> void:
 	_set_prompt_ui()
 	reset = true
 	print("Player and timer reset!")
+	coin_counter_label.text = "0"
+	coin_counter_label.visible = true
 
 
 func _set_prompt_ui() -> void:
 	status_label.visible = true
 	status_label.text = "Get to the top!"
 	score_label.visible = false
+	coin_counter_label.visible = false
 
 
 func _set_running_ui() -> void:
 	status_label.visible = false
 	score_label.visible = false
+	coin_counter_label.visible = true
 
 
 func _set_victory_ui() -> void:
